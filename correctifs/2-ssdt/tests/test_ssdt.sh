@@ -14,6 +14,8 @@ preparer() {
     mkdir -p "$RACINE/sys/class/dmi/id"
     echo "GS76 Stealth 11UH" >"$RACINE/sys/class/dmi/id/product_name"
     echo "E17M1IMS.10C" >"$RACINE/sys/class/dmi/id/bios_version"
+    mkdir -p "$RACINE/usr/lib/initcpio/install"
+    : >"$RACINE/usr/lib/initcpio/install/acpi_override"
     faux_cmd id 'echo 0'
     faux_cmd snapper 'echo "snapper $*" >>"$RACINE/journal"'
     faux_cmd limine-mkinitcpio 'echo "limine-mkinitcpio" >>"$RACINE/journal"'
@@ -63,6 +65,27 @@ verifie "dsdt.aml présent : refus (code ≠ 0)" test "$code" -ne 0
 verifie "dsdt.aml présent : aucune reconstruction" test "$(nb_reconstructions)" -eq 0
 verifie "dsdt.aml présent : table non installée" test ! -e "$RACINE$AML"
 verifie "dsdt.aml présent : conf non créée" test ! -e "$RACINE$CONF"
+
+# Hook mkinitcpio absent : refus avant toute modification.
+preparer
+rm -f "$RACINE/usr/lib/initcpio/install/acpi_override"
+installer; code=$?
+verifie "hook absent : refus" test "$code" -ne 0
+verifie "hook absent : explication" grep -q 'acpi_override.*introuvable' "$RACINE/sortie"
+verifie "hook absent : rien modifié ni reconstruit" test ! -e "$RACINE$AML" -a ! -e "$RACINE$CONF" -a "$(nb_reconstructions)" -eq 0
+preparer
+rm -f "$RACINE/usr/lib/initcpio/install/acpi_override"
+mkdir -p "$RACINE/etc/initcpio/install"
+: >"$RACINE/etc/initcpio/install/acpi_override"
+installer; code=$?
+verifie "hook dans /etc/initcpio/install : accepté" test "$code" -eq 0
+
+# Reconstruction en échec : erreur claire, code non nul.
+preparer
+faux_cmd limine-mkinitcpio 'exit 3'
+installer; code=$?
+verifie "reconstruction en échec : code non nul" test "$code" -ne 0
+verifie "reconstruction en échec : message clair" grep -q "initramfs n'a pas été reconstruit" "$RACINE/sortie"
 
 # Matériel non reconnu : refus, --force passe.
 preparer
@@ -149,6 +172,22 @@ verifier; code=$?
 verifie "journal lisible sans GS76FIX : code 2" test "$code" -eq 2
 verifie "journal lisible sans GS76FIX : DÉFAUT" grep -q '^DÉFAUT ' "$RACINE/sortie"
 
+# Détail selon l'ancienneté de l'installation par rapport au démarrage.
+preparer
+installer
+journal_faux 'kernel: ACPI: rien de spécial'
+profil 'N: Name="Elan Touchpad"'
+mkdir -p "$RACINE/proc"
+echo "btime 1000" >"$RACINE/proc/stat"
+touch -d @2000 "$RACINE$AML"
+verifier; code=$?
+verifie "installé après le démarrage : code 2" test "$code" -eq 2
+verifie "installé après le démarrage : redémarrer" grep -q 'installé après le dernier démarrage : redémarrer' "$RACINE/sortie"
+echo "btime 3000" >"$RACINE/proc/stat"
+verifier; code=$?
+verifie "installé avant le démarrage : code 2" test "$code" -eq 2
+verifie "installé avant le démarrage : chargement absent" grep -q 'chargement absent' "$RACINE/sortie"
+
 preparer
 installer
 journal_faux 'kernel: ACPI: SSDT GS76FIX'
@@ -179,12 +218,20 @@ else
 fi
 
 # --- Table versionnée -------------------------------------------------------
+# Compare deux tables en ignorant l'octet 9 (somme de contrôle) et les octets 28 à 35
+# (identifiant et révision du compilateur), qui changent avec la version d'iasl.
+aml_equivalent() {
+    [ "$(stat -c %s "$1")" = "$(stat -c %s "$2")" ] || return 1
+    cmp -s -n 9 "$1" "$2" || return 1
+    cmp -s -i 10 -n 18 "$1" "$2" || return 1
+    cmp -s -i 36 "$1" "$2"
+}
 if command -v iasl >/dev/null 2>&1; then
     temp="$(mktemp -d)"
     _DOSSIERS_TEMP+=("$temp")
     cp "$corr/ssdt-gs76.asl" "$temp/"
     (cd "$temp" && iasl ssdt-gs76.asl >/dev/null 2>&1)
-    verifie "aml versionné identique à la compilation de l'asl" cmp -s "$corr/ssdt-gs76.aml" "$temp/ssdt-gs76.aml"
+    verifie "aml versionné identique à la compilation de l'asl (champs volatils masqués)" aml_equivalent "$corr/ssdt-gs76.aml" "$temp/ssdt-gs76.aml"
 else
     echo "skip comparaison aml/asl : iasl absent"
 fi

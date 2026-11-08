@@ -16,6 +16,15 @@ if [ ! -f "$aml" ] || ! grep -qs '^HOOKS+=(acpi_override)$' "$conf"; then
     exit 1
 fi
 
+# Précise si l'installation est postérieure au dernier démarrage (redémarrage nécessaire).
+btime="$(sed -n 's/^btime \([0-9][0-9]*\)$/\1/p' "$RACINE/proc/stat" 2>/dev/null | head -n 1)"
+mtime="$(stat -c %Y "$aml" 2>/dev/null || true)"
+if [ -n "$btime" ] && [ -n "$mtime" ] && [ "$mtime" -gt "$btime" ]; then
+    cause="installé après le dernier démarrage : redémarrer"
+else
+    cause="chargement absent malgré un démarrage postérieur à l'installation"
+fi
+
 preuves=""
 
 # Journal du noyau du démarrage en cours.
@@ -23,7 +32,7 @@ if journal="$(journalctl -k -b 2>/dev/null)" && [ -n "$journal" ]; then
     if grep -q GS76FIX <<<"$journal"; then
         preuves="${preuves} journal"
     else
-        echo "DÉFAUT SSDT installée mais absente du journal du noyau (GS76FIX introuvable) : redémarrer ou reconstruire l'initramfs"
+        echo "DÉFAUT SSDT installée mais absente du journal du noyau (GS76FIX introuvable) : $cause"
         exit 2
     fi
 else
@@ -32,7 +41,7 @@ fi
 
 # Alias PS/2 du pavé tactile : doit avoir disparu.
 if grep -qs 'SynPS/2' "$RACINE/proc/bus/input/devices"; then
-    echo "DÉFAUT périphérique SynPS/2 présent : l'alias PS/2 du pavé tactile n'est pas masqué (SSDT non chargée)"
+    echo "DÉFAUT périphérique SynPS/2 présent : l'alias PS/2 du pavé tactile n'est pas masqué (SSDT non chargée) : $cause"
     exit 2
 fi
 
@@ -48,7 +57,7 @@ if [ "$lisibles" -gt 0 ]; then
     if [ "$trouvee" -eq 1 ]; then
         preuves="${preuves} tables-acpi"
     else
-        echo "DÉFAUT SSDT installée mais GS76FIX absent des tables ACPI chargées"
+        echo "DÉFAUT SSDT installée mais GS76FIX absent des tables ACPI chargées : $cause"
         exit 2
     fi
 else

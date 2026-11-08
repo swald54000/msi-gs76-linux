@@ -28,6 +28,11 @@ if [ -e "$RACINE/etc/initcpio/acpi_override/dsdt.aml" ]; then
     exit 1
 fi
 
+if [ ! -e "$RACINE/usr/lib/initcpio/install/acpi_override" ] && [ ! -e "$RACINE/etc/initcpio/install/acpi_override" ]; then
+    echec "le hook mkinitcpio « acpi_override » est introuvable (usr/lib/initcpio/install ou etc/initcpio/install) : sans lui la table ne serait jamais chargée. Rien n'a été modifié."
+    exit 1
+fi
+
 info "instantané avant installation (démarrable depuis le menu Limine en cas de problème)"
 instantane "avant SSDT GS76 (acpi_override)"
 
@@ -40,6 +45,9 @@ install -m644 "$ici/ssdt-gs76.aml" "$RACINE$AML"
 echo 'HOOKS+=(acpi_override)' >"$RACINE$CONF"
 
 info "reconstruction des initramfs"
-reconstruire_initramfs
+if ! reconstruire_initramfs; then
+    echec "la reconstruction de l'initramfs a échoué : l'initramfs n'a pas été reconstruit et la table ne sera pas chargée tant qu'une reconstruction n'aura pas réussi (ou que desinstaller.sh n'aura pas été lancé)."
+    exit 1
+fi
 
 ok "SSDT installée : redémarrez, puis lancez verifier.sh."
