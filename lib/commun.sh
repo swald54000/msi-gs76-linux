@@ -114,14 +114,14 @@ sauvegarder() {
 }
 
 # Remet la sauvegarde, ou supprime le fichier s'il n'en existait pas.
+# La sauvegarde est conservée : appeler restaurer plusieurs fois est inoffensif.
 restaurer() {
     local fichier="$1" src
     src="$(_dossier_sauvegardes)$fichier"
     if [ -e "$src" ]; then
         mkdir -p "$(dirname "${RACINE:-}$fichier")"
         cp -p "$src" "${RACINE:-}$fichier"
-        rm -f "$src"
     else
-        rm -f "${RACINE:-}$fichier" "$src.absent"
+        rm -f "${RACINE:-}$fichier"
     fi
 }

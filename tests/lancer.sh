@@ -32,7 +32,7 @@ for dossier in correctifs lib recherche tests; do
             *.sh) cibles+=("$f") ;;
             *.service | *.conf | *.asl) ;;
             *)
-                if head -n 1 "$f" 2>/dev/null | grep -Eq '^#![[:space:]]*(/usr)?/bin/(env[[:space:]]+)?(ba)?sh([[:space:]]|$)'; then
+                if head -n 1 "$f" 2>/dev/null | grep -Eq '^#![[:space:]]*((/[^[:space:]]*/)?(ba)?sh|(/[^[:space:]]*/)?env([[:space:]]+-S)?[[:space:]]+(ba)?sh)([[:space:]]|$)'; then
                     cibles+=("$f")
                 fi
                 ;;

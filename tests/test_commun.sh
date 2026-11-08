@@ -97,7 +97,17 @@ echo installe >"$RACINE/etc/z"
 sauvegarder /etc/z
 restaurer /etc/z
 verifie "fichier absent à l'origine : supprimé après restaurer" test ! -e "$RACINE/etc/z"
-verifie "marqueur .absent retiré" test ! -e "$RACINE/var/lib/msi-gs76-linux/sauvegardes/etc/z.absent"
+restaurer /etc/z
+verifie "2e restaurer (absent à l'origine) : toujours absent" test ! -e "$RACINE/etc/z"
+
+faux_systeme
+mkdir -p "$RACINE/etc"
+echo origine >"$RACINE/etc/w"
+sauvegarder /etc/w
+echo modifie >"$RACINE/etc/w"
+restaurer /etc/w
+restaurer /etc/w
+verifie "2 restaurer (existant) : contenu d'origine conservé" test "$(cat "$RACINE/etc/w")" = "origine"
 
 # --- Initramfs ---
 faux_systeme
