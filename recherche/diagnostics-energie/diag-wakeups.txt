@@ -1,0 +1,62 @@
+Puissance package CPU : 3.27 W
+  Package C2    88.0 %
+
+=== Interruptions (par seconde)
+total 556/s
+   450.8  LOC:   Local timer interrupts
+    23.1  199:   IR-PCI-MSI-0000:00:02.0 0-edge i915
+    22.1  CAL:   Function call interrupts
+    14.8  TLB:   TLB shootdowns
+    11.6  9:     IR-IO-APIC 9-fasteoi acpi
+    11.4  203:   PCI-MSIX-0000:5c:00.0 0-edge iwlwifi:default_queue
+     8.4  IWI:   IRQ work interrupts
+     7.0  140:   IR-PCI-MSI-0000:00:14.0 0-edge xhci_hcd
+     1.9  RES:   Rescheduling interrupts
+     1.6  192:   IR-PCI-MSIX-0000:02:00.0 10-edge nvme0q10
+     1.1  210:   IR-PCI-MSIX-0000:5c:00.0 7-edge iwlwifi:queue_7
+     1.1  209:   IR-PCI-MSIX-0000:5c:00.0 6-edge iwlwifi:queue_6
+     1.0  208:   IR-PCI-MSIX-0000:5c:00.0 5-edge iwlwifi:queue_5
+     0.2  205:   IR-PCI-MSIX-0000:5c:00.0 2-edge iwlwifi:queue_2
+     0.1  214:   IR-PCI-MSIX-0000:5c:00.0 11-edge iwlwifi:queue_11
+
+=== Réveils par processus / thread (par seconde)
+total 377/s
+    61.5  voxtype-osd-gtk        voxtype-osd-gtk
+    43.1  Hyprland               Hyprland
+    32.3  rcu_preempt            rcu_preempt
+    29.4  voxtype                tokio-runtime-w
+    15.3  kworker/u65:3-rb_allocator kworker/u65:3-rb_allocator
+    14.1  kworker/u64:14-kcryptd-253:0-1 kworker/u64:14-kcryptd-253:0-1
+    12.5  nvidia-powerd          nvidia-powerd
+    11.6  irq/9-acpi             irq/9-acpi
+    11.4  irq/203-iwlwifi:default_queue irq/203-iwlwifi:default_queue
+    10.8  [application utilisateur] [application utilisateur]
+    10.7  kworker/7:2-kacpi_notify kworker/7:2-kacpi_notify
+    10.7  [application utilisateur] [application utilisateur]
+     9.9  voxtype                voxtype
+     9.2  [application utilisateur] [application utilisateur]
+     8.5  thermald               thermald
+     8.0  kworker/u64:12-kcryptd-253:0-1 kworker/u64:12-kcryptd-253:0-1
+     5.8  kworker/4:0-mm_percpu_wq kworker/4:0-mm_percpu_wq
+     4.8  kworker/2:2-mm_percpu_wq kworker/2:2-mm_percpu_wq
+     4.6  kworker/6:1H-i915_cleanup kworker/6:1H-i915_cleanup
+     4.1  kworker/5:2-events     kworker/5:2-events
+     4.0  systemd-oomd           systemd-oomd
+     2.9  kworker/11:1-events    kworker/11:1-events
+     2.3  kworker/11:2-events    kworker/11:2-events
+     2.3  kworker/12:2-events    kworker/12:2-events
+     2.3  Hyprland               Hyprland:gdrv0
+     2.0  [application utilisateur] [application utilisateur]
+     2.0  kcompactd0             kcompactd0
+     1.9  [application utilisateur] [application utilisateur]
+     1.8  kworker/0:1-events     kworker/0:1-events
+     1.8  kworker/u64:9-events_unbound kworker/u64:9-events_unbound
+
+=== Générateur aléatoire matériel
+actuel : tpm-rng-0  dispo : tpm-rng-0 none
+=== Noyau
+7.2.8-5-omarchy-bore
+CONFIG_NO_HZ_FULL=y
+CONFIG_RCU_NOCB_CPU=y
+CONFIG_RCU_LAZY=y
+CONFIG_HZ=1000

@@ -1,0 +1,49 @@
+##### Affichage
+Monitor eDP-2 (ID 0):
+	1920x1080@360.04099 at 0x0
+	availableModes: 1920x1080@360.04Hz 1920x1080@60.04Hz 
+--- PSR
+Sink support: PSR = yes [0x01], Panel Replay = no, Panel Replay Selective Update = no, Panel Replay DSC support = not supported
+PSR mode: disabled
+PSR sink not reliable: no
+--- DMC
+DMC initialized: yes
+fw loaded: yes
+path: i915/tgl_dmc_ver2_12.bin
+Pipe A fw needed: yes
+Pipe A fw loaded: yes
+Pipe B fw needed: no
+Pipe B fw loaded: no
+version: 2.12
+DC3CO count: 0
+DC3 -> DC5 count: 0
+DC5 -> DC6 count: 0
+program base: 0x0c004040
+ssp base: 0x00086fc0
+htp: 0x01a40188
+
+===== 360 Hz
+Puissance package CPU : 3.67 W
+  Package C2    83.2 %
+  Package C3     0.0 %
+  Package C6     0.0 %
+  Package C7     0.0 %
+  Package C8     0.0 %
+  Package C9     0.0 %
+  Package C10    0.0 %
+===== 60 Hz
+Puissance package CPU : 3.41 W
+  Package C2    86.1 %
+  Package C3     0.0 %
+  Package C6     0.0 %
+  Package C7     0.0 %
+  Package C8     0.0 %
+  Package C9     0.0 %
+  Package C10    0.0 %
+--- PSR à 60 Hz
+Sink support: PSR = yes [0x01], Panel Replay = no, Panel Replay Selective Update = no, Panel Replay DSC support = not supported
+PSR mode: disabled
+PSR sink not reliable: no
+
+Écran remis à 360 Hz.
+Terminé : diag-idle.txt

@@ -1,0 +1,20 @@
+##### Mesures sans PSR (réglage MSI)
+   écran : 1920x1080@360.04099  |  PSR mode: disabled 
+360 Hz, sans PSR           2.92 W  DC5 +0  Package C2  90.9%  
+   écran : 1920x1080@60.03600  |  PSR mode: disabled 
+60 Hz, sans PSR            1.73 W  DC5 +0  Package C2  9.8%  Package C3  80.4%  
+
+##### PSR1 forcé
+   écran : 1920x1080@360.04099  |  PSR mode: disabled 
+   écran : 1920x1080@60.03600  |  PSR mode: PSR1 enabled 
+--- décisions PSR du pilote :
+      4 Selective update disabled by flag
+      3 PSR condition failed: PSR setup timing not met
+      3 PSR condition failed: PSR setup time (330 us) too long
+      2 Enabling PSR1
+      1 Setting PSR debug to 3
+      1 Disabling PSR1
+60 Hz, PSR1 forcé         1.45 W  DC5 +0  Package C2  6.6%  Package C3  84.4%  
+   écran : 1920x1080@360.04099  |  PSR mode: disabled 
+360 Hz, PSR1 forcé        2.87 W  DC5 +0  Package C2  91.1%  
+PSR remis par défaut, écran à 360 Hz : 1920x1080@360.04099

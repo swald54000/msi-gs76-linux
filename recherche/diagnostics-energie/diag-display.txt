@@ -1,0 +1,39 @@
+##### Pourquoi i915 refuse le PSR
+ok
+  File "<string>", line 1
+    import json,sys; m=json.load(sys.stdin)[0]; print(f"{m[\"refreshRate\"]:.0f} Hz, allumé={m[\"dpmsStatus\"]}")
+                                                            ^
+SyntaxError: unexpected character after line continuation character
+Relais brisé (pipe)
+   -> écran : 
+ok
+  File "<string>", line 1
+    import json,sys; m=json.load(sys.stdin)[0]; print(f"{m[\"refreshRate\"]:.0f} Hz, allumé={m[\"dpmsStatus\"]}")
+                                                            ^
+SyntaxError: unexpected character after line continuation character
+Relais brisé (pipe)
+   -> écran : 
+      6 i915 0000:00:02.0: [drm:intel_dp_compute_config [i915]] PSR disabled by flag
+      6 i915 0000:00:02.0: [drm:intel_crtc_state_dump [i915]] psr: disabled, selective update: disabled, panel replay: disabled, selective fetch: disabled
+      6 i915 0000:00:02.0: [drm:intel_crtc_state_dump [i915]] active: yes, output_types: EDP (0x100), output format: RGB, sink format: RGB
+      1 i915 0000:00:02.0: [drm:intel_dp_training_pattern [i915]] [CONNECTOR:588:eDP-2][ENCODER:587:DDI A/PHY A][DPRX] 8.1 Gbps link rate without sink TPS4 support
+
+--- i915_edp_psr_status
+Sink support: PSR = yes [0x01], Panel Replay = no, Panel Replay Selective Update = no, Panel Replay DSC support = not supported
+PSR mode: disabled
+PSR sink not reliable: no
+
+##### Écran allumé / éteint
+Écran allumé 2.97 W  Package C2  90.2%  
+               DMC avant : DC3 -> DC5 count: 0 DC5 -> DC6 count: 0 
+               DMC après : DC3 -> DC5 count: 0 DC5 -> DC6 count: 0 
+ok
+  File "<string>", line 1
+    import json,sys; m=json.load(sys.stdin)[0]; print(f"{m[\"refreshRate\"]:.0f} Hz, allumé={m[\"dpmsStatus\"]}")
+                                                            ^
+SyntaxError: unexpected character after line continuation character
+Relais brisé (pipe)
+   -> écran : 
+Écran éteint 1.84 W  Package C2  7.0%  Package C3  83.1%  
+               DMC avant : DC3 -> DC5 count: 4 DC5 -> DC6 count: 0 
+               DMC après : DC3 -> DC5 count: 9 DC5 -> DC6 count: 0 

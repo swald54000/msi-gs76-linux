@@ -1,0 +1,16 @@
+cpu 0  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 1  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 2  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 3  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 4  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 5  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 6  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 7  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 8  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu 9  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu10  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu11  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu12  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu13  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu14  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui
+cpu15  0xE2=0x74008008  limite=8 (PC10)  verrouillé=oui

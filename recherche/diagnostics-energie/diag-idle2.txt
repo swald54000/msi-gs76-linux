@@ -1,0 +1,27 @@
+Paramètre i915 enable_psr = -1  psr_debug = 0
+Périphériques USB coupés à l'étape 2 :
+  3-11 HD Camera
+  3-12 SteelSeries KLC
+  3-4 [souris USB externe]
+  3-5 [clavier USB externe]
+
+===== 0. Référence                           2.98 W  Package C2  90.1%  
+--- PSR après forçage :
+PSR mode: disabled
+===== 1. + PSR forcé                          2.96 W  Package C2  90.0%  
+--- DMC (états DC de l'affichage) :
+DC3 -> DC5 count: 0
+DC5 -> DC6 count: 0
+===== 2. + USB externes coupés                2.97 W  Package C2  90.7%  
+===== 3. + Ethernet et lecteur de cartes coupés 2.92 W  Package C2  90.9%  
+
+--- ltr_show (étape 3)
+1	PMC0:SOUTHPORT_B                     	LTR: RAW: 0x9003            	Non-Snoop(ns): 0               	Snoop(ns): 3145728         	LTR_IGNORE: 0
+4	PMC0:XHCI                            	LTR: RAW: 0x8986            	Non-Snoop(ns): 0               	Snoop(ns): 399360          	LTR_IGNORE: 0
+6	PMC0:ME                              	LTR: RAW: 0x8000800         	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+12	PMC0:SOUTHPORT_D                     	LTR: RAW: 0x89088908        	Non-Snoop(ns): 270336          	Snoop(ns): 270336          	LTR_IGNORE: 0
+23	PMC0:CURRENT_PLATFORM                	LTR: RAW: 0x40201           	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+24	PMC0:AGGREGATED_SYSTEM               	LTR: RAW: 0x2150bff         	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+
+Tout est restauré.
+Terminé : diag-idle2.txt

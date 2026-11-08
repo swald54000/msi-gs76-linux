@@ -11,8 +11,8 @@ regle="$(regle_udev msi-ec 80 BAT0)"
 verifie "règle : chgrp msi-ec" grep -q 'chgrp msi-ec' <<<"$regle"
 verifie "règle : chemin de la batterie" grep -q 'BAT0/charge_control_end_threshold' <<<"$regle"
 verifie "règle : echo 80" grep -q 'echo 80 ' <<<"$regle"
-verifie "règle : pas de gamemode" bash -c '! grep -q game""mode <<<"$1"' _ "$regle"
-verifie "règle : pas de BAT1" bash -c '! grep -q BAT""1 <<<"$1"' _ "$regle"
+verifie "règle : pas de l'ancien groupe d'accès" bash -c '! grep -q game""mode <<<"$1"' _ "$regle"
+verifie "règle : pas d'autre batterie codée en dur" bash -c '! grep -q BAT""1 <<<"$1"' _ "$regle"
 verifie "règle : une seule ligne" test "$(wc -l <<<"$regle")" -eq 1
 verifie "règle : chemins /sys réels" grep -q '/sys/devices/platform/msi-ec' <<<"$regle"
 

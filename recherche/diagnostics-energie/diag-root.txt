@@ -1,0 +1,150 @@
+##### 1. Lecture batterie (_BST), cache désactivé
+0,014 s
+0,013 s
+0,013 s
+0,012 s
+0,013 s
+
+##### 2. ASPM réglé par le BIOS (LnkCap / LnkCtl / L1SS)
+00:01.0 PCI bridge: Intel Corporation 11th Gen Core Processor PCIe Controller 
+    LnkCap:	Port #2, Speed 16GT/s, Width x16, ASPM not supported
+    LnkCtl:	ASPM Disabled; RCB 64 bytes, LnkDisable- CommClk+
+00:06.0 PCI bridge: Intel Corporation 11th Gen Core Processor PCIe Controller 
+    LnkCap:	Port #1, Speed 16GT/s, Width x4, ASPM L1, Exit Latency L1 <16us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+00:07.0 PCI bridge: Intel Corporation Tiger Lake-H Thunderbolt 4 PCI Express R
+    LnkCap:	Port #3, Speed 2.5GT/s, Width x4, ASPM L1, Exit Latency L1 <16us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk-
+00:07.3 PCI bridge: Intel Corporation Tiger Lake-H Thunderbolt 4 PCI Express R
+    LnkCap:	Port #5, Speed 2.5GT/s, Width x4, ASPM L1, Exit Latency L1 <16us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk-
+00:1c.0 PCI bridge: Intel Corporation 500 Series Chipset Family PCIe Root Port
+    LnkCap:	Port #5, Speed 8GT/s, Width x1, ASPM L1, Exit Latency L1 <16us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+00:1c.6 PCI bridge: Intel Corporation 500 Series Chipset Family PCIe Root Port
+    LnkCap:	Port #7, Speed 8GT/s, Width x1, ASPM L1, Exit Latency L1 <16us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+00:1d.0 PCI bridge: Intel Corporation 500 Series Chipset Family PCIe Root Port
+    LnkCap:	Port #9, Speed 8GT/s, Width x4, ASPM L0s L1, Exit Latency L0s <1us, L1 <4us
+    LnkCtl:	ASPM L0s L1 Enabled; RCB 64 bytes, LnkDisable- CommClk-
+00:1d.4 PCI bridge: Intel Corporation 500 Series Chipset Family PCIe Root Port
+    LnkCap:	Port #13, Speed 8GT/s, Width x1, ASPM L1, Exit Latency L1 <16us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+01:00.0 VGA compatible controller: NVIDIA Corporation GA104M [GeForce RTX 3080
+    LnkCap:	Port #0, Speed 16GT/s, Width x16, ASPM L0s L1, Exit Latency L0s <1us, L1 <4us
+    LnkCtl:	ASPM Disabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2- PCI-PM_L1.1- ASPM_L1.2- ASPM_L1.1-
+01:00.1 Audio device: NVIDIA Corporation GA104 High Definition Audio Controlle
+    LnkCap:	Port #0, Speed 16GT/s, Width x16, ASPM L0s L1, Exit Latency L0s <1us, L1 <4us
+    LnkCtl:	ASPM Disabled; RCB 64 bytes, LnkDisable- CommClk+
+02:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Co
+    LnkCap:	Port #0, Speed 16GT/s, Width x4, ASPM L1, Exit Latency L1 <64us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+59:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. Killer E3000 2.5G
+    LnkCap:	Port #0, Speed 5GT/s, Width x1, ASPM L0s L1, Exit Latency L0s unlimited, L1 <64us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+5a:00.0 Unassigned class [ff00]: Realtek Semiconductor Co., Ltd. RTS5260 PCI E
+    LnkCap:	Port #0, Speed 8GT/s, Width x1, ASPM L0s L1, Exit Latency L0s unlimited, L1 unlimited
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+5c:00.0 Network controller: Intel Corporation Wi-Fi 6E(802.11ax) AX210/AX1675*
+    LnkCap:	Port #0, Speed 5GT/s, Width x1, ASPM L1, Exit Latency L1 <8us
+    LnkCtl:	ASPM L1 Enabled; RCB 64 bytes, LnkDisable- CommClk+
+    L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+    L1SubCtl1: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+
+
+##### 3. Requêtes EC (_Qxx) et transactions pendant 15 s
+GPE 0x6E : 161 en 15 s
+Requêtes par code :
+     15 Query(0xc1) started
+Transactions EC : 37
+     15 Command(QR_EC) started
+     22 Command(RD_EC) started
+     15 Command(WR_EC) started
+
+##### 4. États C du package au repos (pmc_core), 10 s
+Package C2     8203.4 ms
+Package C3        0.0 ms
+Package C6        0.0 ms
+Package C7        0.0 ms
+Package C8        0.0 ms
+Package C9        0.0 ms
+Package C10       0.0 ms
+
+--- ltr_show (périphériques qui empêchent les états profonds)
+0	PMC0:SOUTHPORT_A                     	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+1	PMC0:SOUTHPORT_B                     	LTR: RAW: 0x9003            	Non-Snoop(ns): 0               	Snoop(ns): 3145728         	LTR_IGNORE: 0
+2	PMC0:SATA                            	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+3	PMC0:GIGABIT_ETHERNET                	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+4	PMC0:XHCI                            	LTR: RAW: 0x8986            	Non-Snoop(ns): 0               	Snoop(ns): 399360          	LTR_IGNORE: 0
+5	PMC0:Reserved                        	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+6	PMC0:ME                              	LTR: RAW: 0x8000800         	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+7	PMC0:EVA                             	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+8	PMC0:SOUTHPORT_C                     	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+9	PMC0:HD_AUDIO                        	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+10	PMC0:CNV                             	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+11	PMC0:LPSS                            	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+12	PMC0:SOUTHPORT_D                     	LTR: RAW: 0x89088908        	Non-Snoop(ns): 270336          	Snoop(ns): 270336          	LTR_IGNORE: 0
+13	PMC0:SOUTHPORT_E                     	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+14	PMC0:CAMERA                          	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+15	PMC0:ESPI                            	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+16	PMC0:SCC                             	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+17	PMC0:ISH                             	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+18	PMC0:UFSX2                           	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+19	PMC0:EMMC                            	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+20	PMC0:WIGIG                           	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+21	PMC0:THC0                            	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+22	PMC0:THC1                            	LTR: RAW: 0x0               	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+23	PMC0:CURRENT_PLATFORM                	LTR: RAW: 0x40201           	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+24	PMC0:AGGREGATED_SYSTEM               	LTR: RAW: 0x2150bff         	Non-Snoop(ns): 0               	Snoop(ns): 0               	LTR_IGNORE: 0
+
+--- slp_s0_residency_usec : 0
+--- substate_requirements
+
+##### 5. Ports PCIe : D3cold autorisé / état
+00:00.0 D0      d3cold_allowed=0 runtime=active
+00:01.0 D3cold  d3cold_allowed=1 runtime=suspended
+00:02.0 D0      d3cold_allowed=1 runtime=active
+00:04.0 D0      d3cold_allowed=1 runtime=active
+00:06.0 D0      d3cold_allowed=1 runtime=active
+00:07.0 D3cold  d3cold_allowed=1 runtime=suspended
+00:07.3 D3cold  d3cold_allowed=1 runtime=suspended
+00:08.0 D0      d3cold_allowed=1 runtime=active
+00:0a.0 D0      d3cold_allowed=1 runtime=active
+00:0d.0 D3cold  d3cold_allowed=1 runtime=suspended
+00:0d.2 D3cold  d3cold_allowed=1 runtime=suspended
+00:0d.3 D3cold  d3cold_allowed=1 runtime=suspended
+00:14.0 D0      d3cold_allowed=1 runtime=active
+00:14.2 D0      d3cold_allowed=1 runtime=active
+00:15.0 D3hot   d3cold_allowed=1 runtime=suspended
+00:16.0 D0      d3cold_allowed=1 runtime=suspended
+00:1c.0 D0      d3cold_allowed=1 runtime=active
+00:1c.6 D0      d3cold_allowed=1 runtime=active
+00:1d.0 D0      d3cold_allowed=1 runtime=active
+00:1d.4 D0      d3cold_allowed=1 runtime=active
+00:1f.0 D0      d3cold_allowed=0 runtime=active
+00:1f.3 D3hot   d3cold_allowed=1 runtime=suspended
+00:1f.4 D0      d3cold_allowed=0 runtime=suspended
+00:1f.5 D0      d3cold_allowed=0 runtime=active
+01:00.0 D3cold  d3cold_allowed=1 runtime=suspended
+01:00.1 D3cold  d3cold_allowed=1 runtime=suspended
+02:00.0 D0      d3cold_allowed=1 runtime=active
+59:00.0 D0      d3cold_allowed=1 runtime=active
+5a:00.0 D0      d3cold_allowed=1 runtime=active
+5c:00.0 D0      d3cold_allowed=1 runtime=active
+
+Terminé : diag-root.txt

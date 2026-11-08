@@ -1,0 +1,9 @@
+enable_psr=1  psr_debug=0
+cmdline: i915.enable_psr=1
+--- décisions PSR :
+      6 psr: disabled, selective update: disabled, panel replay: disabled, selective fetch: disabled
+      6 PSR disabled by flag
+--- état :
+Sink support: PSR = yes [0x01], Panel Replay = no, Panel Replay Selective Update = no, Panel Replay DSC support = not supported
+PSR mode: disabled
+PSR sink not reliable: no
