@@ -100,13 +100,17 @@ instantane() {
 _dossier_sauvegardes() { printf '%s\n' "${RACINE:-}/var/lib/msi-gs76-linux/sauvegardes"; }
 
 # Sauvegarde le fichier d'origine, une seule fois (jamais écrasée).
+# Si le fichier n'existe pas, un marqueur « .absent » mémorise cet état.
 sauvegarder() {
     local fichier="$1" dest
     dest="$(_dossier_sauvegardes)$fichier"
-    [ -e "$dest" ] && return 0
-    [ -e "${RACINE:-}$fichier" ] || return 0
+    [ -e "$dest" ] || [ -e "$dest.absent" ] && return 0
     mkdir -p "$(dirname "$dest")"
-    cp -p "${RACINE:-}$fichier" "$dest"
+    if [ -e "${RACINE:-}$fichier" ]; then
+        cp -p "${RACINE:-}$fichier" "$dest"
+    else
+        : >"$dest.absent"
+    fi
 }
 
 # Remet la sauvegarde, ou supprime le fichier s'il n'en existait pas.
@@ -116,7 +120,8 @@ restaurer() {
     if [ -e "$src" ]; then
         mkdir -p "$(dirname "${RACINE:-}$fichier")"
         cp -p "$src" "${RACINE:-}$fichier"
+        rm -f "$src"
     else
-        rm -f "${RACINE:-}$fichier"
+        rm -f "${RACINE:-}$fichier" "$src.absent"
     fi
 }

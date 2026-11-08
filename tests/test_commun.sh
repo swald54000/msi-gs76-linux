@@ -69,6 +69,9 @@ faux_systeme
 alim AC Mains; alim hidpp_battery_0 Battery Device; alim BAT0 Battery System
 verifie "batterie ignore AC et périphérique" test "$(batterie)" = "$RACINE/sys/class/power_supply/BAT0"
 
+faux_systeme; alim AC Mains; alim BAT0 Battery
+verifie "batterie sans fichier scope acceptée" test "$(batterie)" = "$RACINE/sys/class/power_supply/BAT0"
+
 faux_systeme; alim AC Mains
 verifie "aucune batterie : retour 1" echoue batterie
 
@@ -86,6 +89,15 @@ verifie "restaurer remet l'original" test "$(cat "$RACINE/etc/x")" = "origine"
 echo cree >"$RACINE/etc/y"
 restaurer /etc/y
 verifie "restaurer sans sauvegarde supprime le fichier" test ! -e "$RACINE/etc/y"
+
+faux_systeme
+mkdir -p "$RACINE/etc"
+sauvegarder /etc/z
+echo installe >"$RACINE/etc/z"
+sauvegarder /etc/z
+restaurer /etc/z
+verifie "fichier absent à l'origine : supprimé après restaurer" test ! -e "$RACINE/etc/z"
+verifie "marqueur .absent retiré" test ! -e "$RACINE/var/lib/msi-gs76-linux/sauvegardes/etc/z.absent"
 
 # --- Initramfs ---
 faux_systeme

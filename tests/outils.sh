@@ -3,6 +3,7 @@
 # shellcheck shell=bash
 
 echecs=0
+_PATH_ORIGINE="$PATH"
 _DOSSIERS_TEMP=()
 
 _nettoyer_temp() {
@@ -20,7 +21,7 @@ faux_systeme() {
     mkdir -p "$FAUX_BIN"
     _DOSSIERS_TEMP+=("$RACINE")
     export RACINE FAUX_BIN
-    PATH="$FAUX_BIN:$PATH"
+    PATH="$FAUX_BIN:$_PATH_ORIGINE"
     export PATH
 }
 

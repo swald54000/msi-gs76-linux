@@ -32,10 +32,9 @@ for dossier in correctifs lib recherche tests; do
             *.sh) cibles+=("$f") ;;
             *.service | *.conf | *.asl) ;;
             *)
-                premiere="$(head -n 1 "$f" 2>/dev/null || true)"
-                case "$premiere" in
-                    '#!'*bash* | '#!'*/sh* | '#!/usr/bin/env sh'*) cibles+=("$f") ;;
-                esac
+                if head -n 1 "$f" 2>/dev/null | grep -Eq '^#![[:space:]]*(/usr)?/bin/(env[[:space:]]+)?(ba)?sh([[:space:]]|$)'; then
+                    cibles+=("$f")
+                fi
                 ;;
         esac
     done < <(find "$dossier" -type f -print0 | sort -z)
