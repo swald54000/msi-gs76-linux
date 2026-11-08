@@ -22,8 +22,8 @@ une version corrigée issue d'un fork public, et ouvre les réglages à un group
 
 ## Utilisation
 
-    sudo bash installer.sh [--force]
-    bash verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
+    sudo ./installer.sh [--force]
+    ./verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
 
 `--force` contourne la vérification du matériel (GS76, firmware 17M1).
 
@@ -36,7 +36,7 @@ une version corrigée issue d'un fork public, et ouvre les réglages à un group
 | `MSI_EC_REF` | commit figé | Commit à installer ; la version DKMS est `gs76.` + 7 premiers caractères |
 | `MSI_EC_NOYAUX` | tous | Liste de noyaux (séparés par des espaces) à traiter |
 
-Exemple : `sudo SEUIL_CHARGE=70 bash installer.sh`.
+Exemple : `sudo SEUIL_CHARGE=70 ./installer.sh`.
 
 ## Reconnexion nécessaire
 
@@ -46,7 +46,7 @@ D'ici là, les réglages restent refusés.
 
 ## Désinstallation
 
-    sudo bash desinstaller.sh
+    sudo ./desinstaller.sh
 
 Retire le pilote du fork, réinstalle la version précédente si ses sources sont
 encore dans `/usr/src`, restaure la règle udev d'origine et supprime le groupe

@@ -32,11 +32,11 @@ work, but nothing here proves it.
 
 | # | Folder | Problem | Measured effect | Risk |
 |---|---|---|---|---|
-| 1 | `1-pilote-msi-ec` | The stock `msi-ec` driver has no fan curve (`cpu/fan_curve`) for the GS76, and fan mode and charge limit can only be set by root | Installs a fixed driver through DKMS and opens the settings to the `msi-ec` group; no figure | Low: replaces the DKMS `msi-ec` module, previous one restored on uninstall |
+| 1 | `1-pilote-msi-ec` | The stock `msi-ec` driver has no fan curve (`cpu/fan_curve`) for the GS76, and fan mode and charge limit can only be set by root | Installs a fixed driver through DKMS and opens the settings to the `msi-ec` group; no figure | Low: replaces the DKMS `msi-ec` module; the previous one is restored on uninstall only if its sources are still in `/usr/src` |
 | 2 | `2-ssdt` | BIOS ACPI bugs: `\_TZ.ETMD` is never defined, so `_OSC` fails and Intel DTT settings never reach `thermald`; the I2C touchpad also shows up as a `SynPS/2` mouse | The `_OSC` errors are gone and the PS/2 alias disappears (see [research](recherche/README.md), section 2); no performance figure | **Medium: acts at boot** (add-only SSDT injected through the initramfs). If the system misbehaves, pick the Snapper snapshot "avant SSDT GS76 (acpi_override)" in the Limine boot menu |
 | 3 | `3-thermald` | After fix 2, user space starts about 0.5 s earlier and `thermald` can start before `intel_rapl_*`, so it runs without RAPL | `thermald` waits up to 5 s for RAPL; no figure. **Only useful with fix 2** | Low: one systemd drop-in |
 | 4 | `4-batterie` | The BIOS `_BST` method takes about 114 ms, so every battery read stutters (widget, power manager, games) | A 5-minute kernel cache plus a background refresh moves the cost away from games; no figure for the cache itself | Low: a tmpfiles entry, a systemd timer, original `cache_time` restored on uninstall |
-| 5 | `5-ecran` | MSI's VBT disables Panel Self Refresh, and at 360 Hz the panel's PSR setup time (330 us) is too long, so the CPU never reaches deep idle states | About 2.9 W to 1.45 W at idle (package power, 60 Hz with PSR forced) | Low to medium: writes to i915 debugfs at boot; refresh rate change needs Hyprland 0.56 or later |
+| 5 | `5-ecran` | MSI's VBT disables Panel Self Refresh, and at 360 Hz the panel's PSR setup time (330 us) is too long, so the CPU never reaches deep idle states | About 2.9 W to 1.45 W at idle (package power, 60 Hz with PSR forced) | Low to medium: writes to i915 debugfs at boot; refresh rate change needs Hyprland 0.56 or later (`--force` skips that check too) |
 | 6 | `6-widget-ventilateurs` | No way to see or change the fan mode from the bar | A bar widget (Omarchy plugin, separate repository); needs fix 1 | Low: a user plugin |
 
 Details, variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) and uninstall notes are in
@@ -49,7 +49,8 @@ each folder's `LISEZMOI.md`.
 - `dkms` and the kernel headers of each installed kernel (fix 1)
 - `mkinitcpio` (fix 2)
 - util-linux `column` (for `verifier-tout.sh`)
-- `jq` optional (fix 5's refresh-rate part also needs `socat` and UPower, see its notes)
+- Fix 5's refresh-rate part also needs `hyprctl` (Hyprland 0.56 or later), `jq`, `socat` and UPower
+- Optional: Limine and Snapper (boot snapshot rollback for fix 2); `limine-mkinitcpio` is used when present
 
 ## Recommended order
 
@@ -87,7 +88,7 @@ It runs every `verifier.sh` and prints one line per fix: healthy, not installed 
 
 ## Rollback
 
-Every fix has a `sudo ./desinstaller.sh` that restores what the installer saved. Fix 2
+Fixes 1 to 5 each have a `sudo ./desinstaller.sh` that restores what the installer saved; fix 6 is removed with `omarchy plugin remove swald.fans`. Fix 2
 acts at boot: if the system no longer starts correctly, choose the Snapper snapshot
 "avant SSDT GS76 (acpi_override)" (taken by the installer when `snapper` is present) in
 the Limine boot menu, then run its uninstaller.
@@ -104,8 +105,9 @@ the Limine boot menu, then run its uninstaller.
 
 ## Security
 
-The installers and uninstallers run as root: **read them before running them**. Nothing is
-downloaded except the msi-ec fork, at a pinned commit (fix 1). The research tools are
+The installers and uninstallers run as root: **read them before running them**. The installers
+download only the msi-ec fork, at a pinned commit (fix 1); the widget comes through
+`omarchy plugin add`. The research tools are
 different: most need root and were written for one machine; read
 [`recherche/README.md`](recherche/README.md) before running any.
 

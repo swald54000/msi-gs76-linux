@@ -13,6 +13,18 @@ for t in tests/test_*.sh correctifs/*/tests/test_*.sh; do
     bash "$t" || echecs=$((echecs + 1))
 done
 
+# Bit d'exécution : tout fichier versionné à shebang doit être exécutable
+sans_exec=$(git ls-files -s 2>/dev/null | awk '$1 == "100644" {print $4}' | while IFS= read -r f; do
+    head -c 2 "$f" 2>/dev/null | grep -q '^#!' && echo "$f"
+done)
+if [ -n "$sans_exec" ]; then
+    echo "FAIL fichiers à shebang sans bit d'exécution :"
+    printf '%s\n' "$sans_exec" | sed 's/^/     /'
+    echecs=$((echecs + 1))
+else
+    echo "ok   fichiers à shebang exécutables"
+fi
+
 # Outil d'analyse : shellcheck installé, sinon via uvx
 if command -v shellcheck >/dev/null 2>&1; then
     shellcheck_cmd=(shellcheck)

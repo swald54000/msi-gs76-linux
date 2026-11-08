@@ -24,9 +24,9 @@ Les fichiers préexistants de même nom sont sauvegardés dans
 
 ## Utilisation
 
-    sudo bash installer.sh [--force]
-    sudo RAFRAICHISSEMENT=60 CACHE_BATTERIE_MS=120000 bash installer.sh
-    bash verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
+    sudo ./installer.sh [--force]
+    sudo RAFRAICHISSEMENT=60 CACHE_BATTERIE_MS=120000 ./installer.sh
+    ./verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
 
 Les deux variables doivent être des entiers strictement positifs, sinon l'installateur
 refuse avant tout changement. `--force` contourne la vérification du matériel
@@ -34,7 +34,7 @@ refuse avant tout changement. `--force` contourne la vérification du matériel
 
 ## Désinstallation
 
-    sudo bash desinstaller.sh
+    sudo ./desinstaller.sh
 
 Désactive le minuteur, retire (ou restaure) les fichiers et remet la valeur d'origine
 de `cache_time`.

@@ -25,8 +25,8 @@ Si un fichier de même nom existait déjà, il est sauvegardé dans
 
 ## Utilisation
 
-    sudo bash installer.sh [--force]
-    bash verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
+    sudo ./installer.sh [--force]
+    ./verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
 
 `--force` contourne la vérification du matériel (GS76, firmware 17M1). L'installateur
 refuse de continuer si l'ancienne surcharge complète `dsdt.aml` est encore présente
@@ -50,7 +50,7 @@ Sans preuve positive possible, la sortie le dit (« chargement non prouvé »).
 
 ## Retour arrière
 
-    sudo bash desinstaller.sh
+    sudo ./desinstaller.sh
 
 Retire la table, et `zz-acpi-override.conf` seulement si aucune autre table `.aml`
 ne reste dans `acpi_override`, puis reconstruit les initramfs. Si le système ne démarre

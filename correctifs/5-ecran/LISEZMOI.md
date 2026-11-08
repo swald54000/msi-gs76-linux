@@ -33,8 +33,8 @@ version est inférieure à 0.56 ou introuvable, il refuse, sauf avec `--force`.
 
 ## Utilisation
 
-    sudo bash installer.sh [--psr] [--frequence] [--force]
-    bash verifier.sh        # sans privilèges ; code 0 sain, 1 rien d'installé, 2 défaut
+    sudo ./installer.sh [--psr] [--frequence] [--force]
+    ./verifier.sh        # sans privilèges ; code 0 sain, 1 rien d'installé, 2 défaut
 
 `verifier.sh` affiche une ligne par partie (`OK`, `ABSENT` ou `DÉFAUT`) ; une partie non
 installée n'est un défaut que si l'autre l'est. `--force` contourne la vérification du
@@ -42,7 +42,7 @@ matériel (GS76, firmware 17M1) et celle de la version de Hyprland.
 
 ## Désinstallation
 
-    sudo bash desinstaller.sh
+    sudo ./desinstaller.sh
 
 Désactive les deux services, retire (ou restaure) les trois fichiers. Les sessions déjà
 ouvertes gardent le script en cours d'exécution jusqu'à leur fermeture.

@@ -21,14 +21,14 @@ sauvegardé dans `/var/lib/msi-gs76-linux/sauvegardes/`.
 
 ## Utilisation
 
-    sudo bash installer.sh [--force]
-    bash verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
+    sudo ./installer.sh [--force]
+    ./verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
 
 `--force` contourne la vérification du matériel (GS76, firmware 17M1).
 
 ## Désinstallation
 
-    sudo bash desinstaller.sh
+    sudo ./desinstaller.sh
 
 Retire le complément (ou remet l'ancien), supprime le dossier `thermald.service.d`
 s'il est vide, puis lance `systemctl daemon-reload`.

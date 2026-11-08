@@ -33,11 +33,11 @@ GS76 (par exemple le 11UG) peuvent fonctionner, mais rien ici ne le prouve.
 
 | N° | Dossier | Problème | Effet mesuré | Risque |
 |---|---|---|---|---|
-| 1 | `1-pilote-msi-ec` | Le pilote `msi-ec` d'origine n'a pas de courbe de ventilateur (`cpu/fan_curve`) pour le GS76, et le mode des ventilateurs et le seuil de charge ne sont réglables que par root | Installe un pilote corrigé via DKMS et ouvre les réglages au groupe `msi-ec` ; pas de chiffre | Faible : remplace le module DKMS `msi-ec`, l'ancien est remis à la désinstallation |
+| 1 | `1-pilote-msi-ec` | Le pilote `msi-ec` d'origine n'a pas de courbe de ventilateur (`cpu/fan_curve`) pour le GS76, et le mode des ventilateurs et le seuil de charge ne sont réglables que par root | Installe un pilote corrigé via DKMS et ouvre les réglages au groupe `msi-ec` ; pas de chiffre | Faible : remplace le module DKMS `msi-ec` ; l'ancien n'est remis à la désinstallation que si ses sources sont encore dans `/usr/src` |
 | 2 | `2-ssdt` | Bugs ACPI du BIOS : `\_TZ.ETMD` n'est jamais défini, donc `_OSC` échoue et les réglages Intel DTT n'atteignent pas `thermald` ; le pavé tactile I2C apparaît aussi comme souris `SynPS/2` | Les erreurs `_OSC` disparaissent et l'alias PS/2 aussi (voir la [recherche](recherche/README.fr.md), section 2) ; pas de chiffre de performance | **Moyen : agit au démarrage** (SSDT en ajout seul, injectée par l'initramfs). Si le système se comporte mal, choisir l'instantané Snapper « avant SSDT GS76 (acpi_override) » dans le menu de démarrage Limine |
 | 3 | `3-thermald` | Après le correctif 2, l'espace utilisateur démarre environ 0,5 s plus tôt et `thermald` peut devancer `intel_rapl_*` et travailler sans RAPL | `thermald` attend RAPL jusqu'à 5 s ; pas de chiffre. **Utile seulement avec le correctif 2** | Faible : un complément systemd |
 | 4 | `4-batterie` | La méthode `_BST` du BIOS prend environ 114 ms, donc chaque lecture de la batterie fait saccader (widget, gestionnaire d'énergie, jeux) | Un cache noyau de 5 minutes et un rafraîchissement en tâche de fond écartent ce coût des jeux ; pas de chiffre pour le cache lui-même | Faible : une entrée tmpfiles, un minuteur systemd, `cache_time` d'origine remis à la désinstallation |
-| 5 | `5-ecran` | Le VBT des MSI désactive le Panel Self Refresh, et à 360 Hz le temps d'établissement du PSR de la dalle (330 us) est trop long, donc le processeur n'atteint jamais les états de repos profonds | Environ 2,9 W puis 1,45 W au repos (puissance du processeur, 60 Hz avec PSR forcé) | Faible à moyen : écrit dans debugfs d'i915 au démarrage ; le changement de fréquence demande Hyprland 0.56 ou plus |
+| 5 | `5-ecran` | Le VBT des MSI désactive le Panel Self Refresh, et à 360 Hz le temps d'établissement du PSR de la dalle (330 us) est trop long, donc le processeur n'atteint jamais les états de repos profonds | Environ 2,9 W puis 1,45 W au repos (puissance du processeur, 60 Hz avec PSR forcé) | Faible à moyen : écrit dans debugfs d'i915 au démarrage ; le changement de fréquence demande Hyprland 0.56 ou plus (`--force` passe aussi cette vérification) |
 | 6 | `6-widget-ventilateurs` | Aucun moyen de voir ou de changer le mode des ventilateurs depuis la barre | Un widget de barre (plugin Omarchy, dépôt séparé) ; demande le correctif 1 | Faible : un plugin utilisateur |
 
 Le détail, les variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) et les notes de
@@ -50,8 +50,10 @@ désinstallation sont dans le `LISEZMOI.md` de chaque dossier.
 - `dkms` et les en-têtes de chaque noyau installé (correctif 1)
 - `mkinitcpio` (correctif 2)
 - `column` d'util-linux (pour `verifier-tout.sh`)
-- `jq` facultatif (la partie fréquence du correctif 5 demande aussi `socat` et UPower,
-  voir sa notice)
+- La partie fréquence du correctif 5 demande aussi `hyprctl` (Hyprland 0.56 ou plus),
+  `jq`, `socat` et UPower
+- Facultatif : Limine et Snapper (retour arrière par instantané pour le correctif 2) ;
+  `limine-mkinitcpio` est utilisé s'il est présent
 
 ## Ordre conseillé
 
@@ -90,8 +92,9 @@ en défaut.
 
 ## Retour arrière
 
-Chaque correctif a un `sudo ./desinstaller.sh` qui remet ce que l'installateur a
-sauvegardé. Le correctif 2 agit au démarrage : si le système ne démarre plus
+Les correctifs 1 à 5 ont chacun un `sudo ./desinstaller.sh` qui remet ce que
+l'installateur a sauvegardé ; le correctif 6 se retire avec
+`omarchy plugin remove swald.fans`. Le correctif 2 agit au démarrage : si le système ne démarre plus
 correctement, choisir l'instantané Snapper « avant SSDT GS76 (acpi_override) » (pris par
 l'installateur si `snapper` est présent) dans le menu de démarrage Limine, puis lancer
 son désinstallateur.
@@ -111,7 +114,8 @@ son désinstallateur.
 ## Sécurité
 
 Les installateurs et désinstallateurs s'exécutent en root : **lisez-les avant de les
-lancer**. Rien n'est téléchargé, sauf le fork de msi-ec, à un commit figé (correctif 1).
+lancer**. Les installateurs ne téléchargent que le fork de msi-ec, à un commit figé (correctif 1) ;
+le widget vient de `omarchy plugin add`.
 Les outils de recherche sont différents : la plupart demandent root et ont été écrits
 pour une seule machine ; lisez [`recherche/README.fr.md`](recherche/README.fr.md) avant
 d'en lancer un.
