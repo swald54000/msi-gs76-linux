@@ -126,13 +126,55 @@ verifie "matériel inconnu : rien installé" test ! -e "$RACINE$SCRIPT"
 installer --force; code=$?
 verifie "--force : code 0" test "$code" -eq 0
 
-# Le script lit la batterie dans la conf.
+# Installation puis désinstallation sans fichier préexistant : rien ne reste.
 preparer
-mkdir -p "$RACINE/lecture"
-echo Charging >"$RACINE/lecture/status"
-echo "BATTERIE=$RACINE/lecture" >"$RACINE/essai.conf"
-BATTERIE_CONF="$RACINE/essai.conf" CACHE_BATTERIE_PARAM="$RACINE$CACHE" bash "$corr/battery-refresh"; code=$?
+installer
+installer
+desinstaller
+reste="$(find "$RACINE" -type f -not -path "$RACINE/faux-bin/*" -not -path "$RACINE/sys/*" -not -path "$RACINE/var/lib/*" -not -name sortie -not -name journal -not -name timer-actif)"
+verifie "installer deux fois puis désinstaller : aucun fichier résiduel (hors sauvegardes)" test -z "$reste"
+
+# Borne haute de CACHE_BATTERIE_MS.
+preparer
+CACHE_BATTERIE_MS=3600001 installer; code=$?
+verifie "CACHE_BATTERIE_MS trop grand : refus" test "$code" -ne 0
+CACHE_BATTERIE_MS=99999999999 installer; code=$?
+verifie "CACHE_BATTERIE_MS énorme : refus" test "$code" -ne 0
+verifie "bornes : rien installé" test ! -e "$RACINE$CONF"
+CACHE_BATTERIE_MS=3600000 installer; code=$?
+verifie "CACHE_BATTERIE_MS=3600000 : accepté" test "$code" -eq 0
+
+# Le script : rétablit la cible configurée, lit la conf sans l'exécuter.
+preparer
+mkdir -p "$RACINE/sys/class/power_supply/BAT0"
+echo Charging >"$RACINE/sys/class/power_supply/BAT0/status"
+printf 'BATTERIE=/sys/class/power_supply/BAT0\nCACHE_BATTERIE_MS=300000\n' >"$RACINE/essai.conf"
+lancer_script() { BATTERIE_CONF="$1" CACHE_BATTERIE_PARAM="$RACINE$CACHE" BATTERIE_RACINE="$RACINE" bash "$corr/battery-refresh" 2>/dev/null; }
+echo 1000 >"$RACINE$CACHE"
+lancer_script "$RACINE/essai.conf"; code=$?
 verifie "battery-refresh : code 0" test "$code" -eq 0
-verifie "battery-refresh : cache_time rétabli" test "$(cat "$RACINE$CACHE")" = 1000
+verifie "battery-refresh : cible configurée rétablie" test "$(cat "$RACINE$CACHE")" = 300000
+echo 1 >"$RACINE$CACHE"
+lancer_script "$RACINE/essai.conf"
+verifie "battery-refresh : cache_time resté à 1 → cible rétablie" test "$(cat "$RACINE$CACHE")" = 300000
+
+echo 1234 >"$RACINE$CACHE"
+lancer_script "$RACINE/absente.conf"; code=$?
+verifie "conf absente : code 1" test "$code" -eq 1
+verifie "conf absente : cache_time inchangé" test "$(cat "$RACINE$CACHE")" = 1234
+echo "n'importe quoi" >"$RACINE/mauvaise.conf"
+lancer_script "$RACINE/mauvaise.conf"; code=$?
+verifie "conf mal formée : code 1" test "$code" -eq 1
+verifie "conf mal formée : cache_time inchangé" test "$(cat "$RACINE$CACHE")" = 1234
+printf 'BATTERIE=/tmp/../etc\nCACHE_BATTERIE_MS=300000\n' >"$RACINE/chemin.conf"
+lancer_script "$RACINE/chemin.conf"; code=$?
+verifie "chemin hors power_supply : code 1" test "$code" -eq 1
+verifie "chemin invalide : cache_time inchangé" test "$(cat "$RACINE$CACHE")" = 1234
+printf 'BATTERIE=/sys/class/power_supply/BAT0\nCACHE_BATTERIE_MS=abc\n' >"$RACINE/cache.conf"
+lancer_script "$RACINE/cache.conf"; code=$?
+verifie "cache invalide : code 1" test "$code" -eq 1
+printf 'BATTERIE=/sys/class/power_supply/BAT0\nCACHE_BATTERIE_MS=300000\ntouch %s/pwn\n' "$RACINE" >"$RACINE/piege.conf"
+lancer_script "$RACINE/piege.conf"
+verifie "conf non exécutée" test ! -e "$RACINE/pwn"
 
 fin

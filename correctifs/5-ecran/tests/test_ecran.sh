@@ -95,6 +95,23 @@ verifie "désinstallation : daemon-reload" grep -q '^systemctl daemon-reload' "$
 verifier; code=$?
 verifie "après désinstallation : code 1" test "$code" -eq 1
 
+# Unité déjà supprimée à la main : le lien d'activation est quand même retiré.
+preparer
+installer
+rm -f "$RACINE$UNITE"
+desinstaller; code=$?
+verifie "unité supprimée avant : code 0" test "$code" -eq 0
+verifie "unité supprimée avant : lien retiré" test ! -L "$RACINE$LIEN"
+
+# Deux installations puis désinstallation, sans fichier préexistant : rien ne reste.
+preparer
+installer
+installer
+desinstaller
+reste="$(find "$RACINE" -type f -not -path "$RACINE/faux-bin/*" -not -path "$RACINE/sys/*" -not -path "$RACINE/var/lib/*" -not -name sortie -not -name journal -not -name psr-actif)"
+verifie "installer deux fois puis désinstaller : aucun fichier résiduel (hors sauvegardes)" test -z "$reste"
+verifie "installer deux fois puis désinstaller : aucun lien résiduel" test -z "$(find "$RACINE/etc" -type l 2>/dev/null)"
+
 # Service préexistant restauré.
 preparer
 mkdir -p "$RACINE/etc/systemd/system"

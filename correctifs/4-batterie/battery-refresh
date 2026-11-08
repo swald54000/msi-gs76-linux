@@ -1,20 +1,34 @@
 #!/bin/sh
 # Rafraîchit l'état de la batterie en tâche de fond, pour que ce soit ce service
 # (et non un jeu) qui paie les ~114 ms de la méthode ACPI _BST du BIOS MSI.
-# Le chemin de la batterie vient de la configuration écrite par l'installateur.
-# BATTERIE_CONF et CACHE_BATTERIE_PARAM ne servent qu'aux tests.
+# La batterie et la valeur de cache à rétablir viennent de la configuration écrite
+# par l'installateur ; elles sont lues sans exécuter le fichier.
+# BATTERIE_CONF, CACHE_BATTERIE_PARAM et BATTERIE_RACINE ne servent qu'aux tests.
 CONF="${BATTERIE_CONF:-/etc/msi-gs76-linux/batterie.conf}"
 P="${CACHE_BATTERIE_PARAM:-/sys/module/battery/parameters/cache_time}"
+R="${BATTERIE_RACINE:-}"
 
-BATTERIE=
-# shellcheck disable=SC1090
-[ -r "$CONF" ] && . "$CONF"
-if [ -z "$BATTERIE" ] || [ ! -r "$BATTERIE/status" ]; then
-    echo "battery-refresh : batterie introuvable (voir $CONF)" >&2
+BATTERIE="$(sed -n 's/^BATTERIE=//p' "$CONF" 2>/dev/null | head -n 1)"
+CIBLE="$(sed -n 's/^CACHE_BATTERIE_MS=//p' "$CONF" 2>/dev/null | head -n 1)"
+
+if ! printf '%s\n' "$BATTERIE" | grep -Eq '^/sys/class/power_supply/[A-Za-z0-9_]+$'; then
+    echo "battery-refresh : chemin de batterie invalide ou absent dans $CONF" >&2
+    exit 1
+fi
+if ! printf '%s\n' "$CIBLE" | grep -Eq '^[1-9][0-9]{0,7}$'; then
+    echo "battery-refresh : CACHE_BATTERIE_MS invalide ou absent dans $CONF" >&2
+    exit 1
+fi
+if [ ! -r "$R$BATTERIE/status" ]; then
+    echo "battery-refresh : batterie illisible : $BATTERIE" >&2
     exit 1
 fi
 
-old=$(cat "$P")
+# La valeur rétablie est toujours la cible configurée, jamais la valeur courante :
+# un arrêt entre les deux écritures ne doit pas figer le cache à 1.
+restaurer_cache() { echo "$CIBLE" >"$P"; }
+trap restaurer_cache EXIT
+trap 'exit 1' INT TERM
+
 echo 1 >"$P"
-cat "$BATTERIE/status" >/dev/null
-echo "$old" >"$P"
+cat "$R$BATTERIE/status" >/dev/null

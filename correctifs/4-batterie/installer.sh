@@ -32,6 +32,10 @@ verifier_materiel "${forcer[@]}" || exit 1
 case "$CACHE_BATTERIE_MS" in
     '' | *[!0-9]* | 0*) echec "CACHE_BATTERIE_MS doit être un entier strictement positif (reçu « $CACHE_BATTERIE_MS »)."; exit 1 ;;
 esac
+if [ "${#CACHE_BATTERIE_MS}" -gt 7 ] || [ "$CACHE_BATTERIE_MS" -gt 3600000 ]; then
+    echec "CACHE_BATTERIE_MS ne doit pas dépasser 3600000 (une heure) ; reçu « $CACHE_BATTERIE_MS »."
+    exit 1
+fi
 case "$RAFRAICHISSEMENT" in
     '' | *[!0-9]* | 0*) echec "RAFRAICHISSEMENT doit être un entier strictement positif, en secondes (reçu « $RAFRAICHISSEMENT »)."; exit 1 ;;
 esac
@@ -55,7 +59,7 @@ install -m644 "$ici/battery-refresh.service" "$RACINE$SERVICE"
 sed "s/^OnUnitActiveSec=.*/OnUnitActiveSec=${RAFRAICHISSEMENT}s/" "$ici/battery-refresh.timer" >"$RACINE$TIMER"
 chmod 644 "$RACINE$TIMER"
 printf 'w /sys/module/battery/parameters/cache_time - - - - %s\n' "$CACHE_BATTERIE_MS" >"$RACINE$TMPF"
-printf 'BATTERIE=%s\n' "$bat" >"$RACINE$CONF"
+printf 'BATTERIE=%s\nCACHE_BATTERIE_MS=%s\n' "$bat" "$CACHE_BATTERIE_MS" >"$RACINE$CONF"
 
 if [ -w "$RACINE$PARAM" ]; then
     echo "$CACHE_BATTERIE_MS" >"$RACINE$PARAM"
