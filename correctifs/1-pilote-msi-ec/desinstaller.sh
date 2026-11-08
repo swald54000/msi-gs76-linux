@@ -52,6 +52,13 @@ modprobe -r msi_ec 2>/dev/null || true
 modprobe msi_ec 2>/dev/null || avertir "msi_ec ne se recharge pas."
 udevadm trigger --action=bind --subsystem-match=platform --attr-match=driver=msi-ec || true
 
+# L'utilisateur qui a lancé sudo quitte le groupe (ajouté par l'installateur).
+if utilisateur="$(utilisateur_cible 2>/dev/null)"; then
+    gpasswd -d "$utilisateur" "$GROUPE" >/dev/null 2>&1 || info "$utilisateur n'était pas membre du groupe $GROUPE."
+else
+    avertir "utilisateur cible introuvable (SUDO_USER absent) : appartenance au groupe $GROUPE laissée telle quelle."
+fi
+
 # Groupe : supprimé seulement s'il n'a plus aucun membre.
 ligne="$(getent group "$GROUPE" || true)"
 if [ -n "$ligne" ]; then

@@ -48,6 +48,7 @@ verifie "installation : service installé" test -f "$RACINE$SERVICE"
 verifie "installation : script exécutable" test -x "$RACINE$SCRIPT"
 verifie "installation : cache_time appliqué" test "$(cat "$RACINE$CACHE")" = 300000
 verifie "installation : minuteur activé" grep -q '^systemctl enable --now battery-refresh.timer' "$RACINE/journal"
+verifie "installation : sortie du verifier.sh affichée" grep -q '^OK cache_time à 300000 ms' "$RACINE/sortie"
 verifier; code=$?
 verifie "après installation : code 0" test "$code" -eq 0
 verifie "après installation : OK" grep -q '^OK ' "$RACINE/sortie"

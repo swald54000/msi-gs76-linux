@@ -70,3 +70,5 @@ systemctl daemon-reload
 systemctl enable --now battery-refresh.timer
 
 ok "cache batterie de ${CACHE_BATTERIE_MS} ms, rafraîchissement toutes les ${RAFRAICHISSEMENT} s (batterie : $bat)."
+info "vérification (à titre indicatif, sans effet sur le résultat de l'installation) :"
+bash "$ici/verifier.sh" || true

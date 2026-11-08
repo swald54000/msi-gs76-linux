@@ -30,6 +30,10 @@ preuves=""
 # Journal du noyau du démarrage en cours.
 if journal="$(journalctl -k -b 2>/dev/null)" && [ -n "$journal" ]; then
     if grep -q GS76FIX <<<"$journal"; then
+        if grep -E 'IETM\._OSC|ETMD' <<<"$journal" | grep -qE 'AE_|[Aa]bort'; then
+            echo "DÉFAUT erreurs ACPI de \\_SB.IETM._OSC (\\_TZ.ETMD introuvable) encore présentes dans le journal du noyau"
+            exit 2
+        fi
         preuves="${preuves} journal"
     else
         echo "DÉFAUT SSDT installée mais absente du journal du noyau (GS76FIX introuvable) : $cause"

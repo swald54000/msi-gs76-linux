@@ -14,12 +14,12 @@ exiger_root
 systemctl disable --now i915-psr-force.service || avertir "service PSR déjà désactivé."
 systemctl --global disable edp-refresh-auto.service || avertir "unité utilisateur déjà désactivée."
 # Lien d'activation retiré explicitement, même si « disable » a échoué (unité déjà supprimée).
-rm -f "${RACINE:?}/etc/systemd/user/graphical-session.target.wants/edp-refresh-auto.service"
+rm -f "$RACINE/etc/systemd/user/graphical-session.target.wants/edp-refresh-auto.service"
 for f in "${FICHIERS[@]}"; do
     if a_une_sauvegarde "$f"; then
         restaurer "$f"
     else
-        rm -f "${RACINE:?}$f"
+        rm -f "$RACINE$f"
     fi
 done
 rmdir --ignore-fail-on-non-empty "$RACINE/etc/systemd/user/graphical-session.target.wants" 2>/dev/null || true

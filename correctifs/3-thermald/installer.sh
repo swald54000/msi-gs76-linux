@@ -25,3 +25,5 @@ install -m644 "$ici/wait-rapl.conf" "$RACINE$CONF"
 systemctl daemon-reload
 
 ok "complément thermald installé : il s'applique au prochain démarrage de thermald."
+info "vérification (à titre indicatif, sans effet sur le résultat de l'installation) :"
+bash "$ici/verifier.sh" || true

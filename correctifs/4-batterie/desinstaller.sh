@@ -19,7 +19,7 @@ for f in "${FICHIERS[@]}"; do
     if a_une_sauvegarde "$f"; then
         restaurer "$f"
     else
-        rm -f "${RACINE:?}$f"
+        rm -f "$RACINE$f"
     fi
 done
 rmdir --ignore-fail-on-non-empty "$RACINE/etc/msi-gs76-linux" 2>/dev/null || true

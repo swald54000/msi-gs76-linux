@@ -60,6 +60,8 @@ verifie "succès : règle sans RACINE" bash -c '! grep -q "$1" "$2"' _ "$RACINE"
 verifie "succès : groupadd msi-ec" grep -q '^groupadd msi-ec' "$RACINE/journal"
 verifie "succès : usermod -aG msi-ec alice" grep -q '^usermod -aG msi-ec alice' "$RACINE/journal"
 verifie "succès : demande de se reconnecter" grep -qi 'reconnect' "$RACINE/sortie"
+verifie "succès : sortie du verifier.sh affichée" grep -Eq '^(ABSENT|DÉFAUT|OK msi-ec du fork actif)' "$RACINE/sortie"
+verifie "succès : verifier après le message d'installation" bash -c 'a=$(grep -n "installé (" "$1" | head -1 | cut -d: -f1); b=$(grep -nE "^(OK|ABSENT|DÉFAUT) " "$1" | tail -1 | cut -d: -f1); [ "$a" -lt "$b" ]' _ "$RACINE/sortie"
 verifie "succès : pilote précédent mémorisé" grep -qx 'r734.d7fbbd8' "$RACINE/var/lib/msi-gs76-linux/pilote-precedent"
 
 # 3. Deuxième exécution : aucun doublon, précédent inchangé.
@@ -80,6 +82,18 @@ installer; code=$?
 verifie "noyau sans build : ignoré signalé" grep -q 'noyau 7.2.14-1-omarchy ignoré' "$RACINE/sortie"
 verifie "noyau avec build : installé" grep -q 'dkms install msi-ec/gs76.4b72e41 -k 7.2.15-2-omarchy' "$RACINE/journal"
 verifie "noyau sans build : pas installé" bash -c '! grep -q -- "-k 7.2.14-1-omarchy" "$1"' _ "$RACINE/journal"
+
+# 4b. MSI_EC_REF invalide : refus avant tout changement.
+for ref in "../x" "ABCDEF1" "abc" "4b72e41; rm" "g123456" "$(printf 'a%.0s' {1..41})"; do
+    preparer "7.2.14-1-omarchy"
+    MSI_EC_REF="$ref" installer; code=$?
+    verifie "MSI_EC_REF='${ref:0:12}' refusé" test "$code" -ne 0
+    verifie "MSI_EC_REF='${ref:0:12}' : message" grep -q 'MSI_EC_REF invalide' "$RACINE/sortie"
+    verifie "MSI_EC_REF='${ref:0:12}' : git jamais appelé" test ! -e "$RACINE/journal"
+done
+preparer "7.2.14-1-omarchy"
+MSI_EC_REF=4b72e41 installer; code=$?
+verifie "MSI_EC_REF court valide (7 car.) accepté" test "$code" -eq 0
 
 # 5. Matériel non GS76 : arrêt avant git.
 preparer "7.2.14-1-omarchy"

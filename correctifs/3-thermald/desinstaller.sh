@@ -13,7 +13,7 @@ exiger_root
 if a_une_sauvegarde "$CONF"; then
     restaurer "$CONF"
 else
-    rm -f "${RACINE:?}$CONF"
+    rm -f "$RACINE$CONF"
 fi
 rmdir --ignore-fail-on-non-empty "$RACINE$(dirname "$CONF")" 2>/dev/null || true
 systemctl daemon-reload

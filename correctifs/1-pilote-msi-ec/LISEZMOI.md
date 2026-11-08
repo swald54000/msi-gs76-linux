@@ -25,7 +25,10 @@ une version corrigée issue d'un fork public, et ouvre les réglages à un group
     sudo ./installer.sh [--force]
     ./verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
 
-`--force` contourne la vérification du matériel (GS76, firmware 17M1).
+`--force` contourne la vérification du matériel (GS76, firmware 17M1). À la fin,
+l'installateur lance `verifier.sh` et affiche son résultat, à titre indicatif : il ne
+change pas le code de sortie de l'installation. Le verifier indique aussi la version du
+module chargé.
 
 ## Variables
 
@@ -33,7 +36,7 @@ une version corrigée issue d'un fork public, et ouvre les réglages à un group
 |---|---|---|
 | `SEUIL_CHARGE` | `80` | Seuil de charge, de 50 à 100 ; autre valeur : refus avant toute action |
 | `MSI_EC_DEPOT` | dépôt du fork | Dépôt git du pilote |
-| `MSI_EC_REF` | commit figé | Commit à installer ; la version DKMS est `gs76.` + 7 premiers caractères |
+| `MSI_EC_REF` | commit figé | Commit à installer, en hexadécimal minuscule (7 à 40 caractères, sinon refus avant toute action) ; la version DKMS est `gs76.` + 7 premiers caractères |
 | `MSI_EC_NOYAUX` | tous | Liste de noyaux (séparés par des espaces) à traiter |
 
 Exemple : `sudo SEUIL_CHARGE=70 ./installer.sh`.
@@ -49,8 +52,9 @@ D'ici là, les réglages restent refusés.
     sudo ./desinstaller.sh
 
 Retire le pilote du fork, réinstalle la version précédente si ses sources sont
-encore dans `/usr/src`, restaure la règle udev d'origine et supprime le groupe
-`msi-ec` s'il n'a plus aucun membre. Relancer l'installateur est sans danger :
+encore dans `/usr/src`, restaure la règle udev d'origine, retire l'utilisateur qui a
+lancé `sudo` du groupe `msi-ec` (la déconnexion/reconnexion applique le retrait) et
+supprime ce groupe s'il n'a plus aucun membre. Relancer l'installateur est sans danger :
 aucune ligne en double, aucune sauvegarde écrasée.
 
 Attention : si une relance de l'installateur échoue, le retour arrière remet le

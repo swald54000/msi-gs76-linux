@@ -16,7 +16,7 @@ exiger_root
 if a_une_sauvegarde "$AML"; then
     restaurer "$AML"
 else
-    rm -f "${RACINE:?}$AML"
+    rm -f "$RACINE$AML"
 fi
 
 # Conf : retirée seulement s'il ne reste aucune autre table .aml.
@@ -28,7 +28,7 @@ if [ "$reste" -eq 0 ]; then
     if a_une_sauvegarde "$CONF"; then
         restaurer "$CONF"
     else
-        rm -f "${RACINE:?}$CONF"
+        rm -f "$RACINE$CONF"
     fi
     rmdir --ignore-fail-on-non-empty "$RACINE$DOSSIER" 2>/dev/null || true
 else

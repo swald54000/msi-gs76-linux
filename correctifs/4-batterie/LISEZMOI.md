@@ -28,6 +28,9 @@ Les fichiers préexistants de même nom sont sauvegardés dans
     sudo RAFRAICHISSEMENT=60 CACHE_BATTERIE_MS=120000 ./installer.sh
     ./verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
 
+À la fin, l'installateur lance `verifier.sh` et affiche son résultat, à titre indicatif :
+il ne change pas le code de sortie de l'installation.
+
 Les deux variables doivent être des entiers strictement positifs, sinon l'installateur
 refuse avant tout changement. `--force` contourne la vérification du matériel
 (GS76, firmware 17M1). Relancer l'installateur ne crée aucun doublon.

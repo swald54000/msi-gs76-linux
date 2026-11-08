@@ -36,6 +36,9 @@ version est inférieure à 0.56 ou introuvable, il refuse, sauf avec `--force`.
     sudo ./installer.sh [--psr] [--frequence] [--force]
     ./verifier.sh        # sans privilèges ; code 0 sain, 1 rien d'installé, 2 défaut
 
+À la fin, l'installateur lance `verifier.sh` et affiche son résultat, à titre indicatif :
+il ne change pas le code de sortie de l'installation.
+
 `verifier.sh` affiche une ligne par partie (`OK`, `ABSENT` ou `DÉFAUT`) ; une partie non
 installée n'est un défaut que si l'autre l'est. `--force` contourne la vérification du
 matériel (GS76, firmware 17M1) et celle de la version de Hyprland.

@@ -98,6 +98,15 @@ if [ "$frequence" -eq 1 ]; then
     install -m755 "$ici/edp-refresh-auto" "$RACINE$SCRIPT"
     install -m644 "$ici/edp-refresh-auto.service" "$RACINE$UNITE"
     systemctl daemon-reload
-    systemctl --global enable edp-refresh-auto.service
-    ok "fréquence selon l'alimentation installée : elle démarre à la prochaine ouverture de session de $utilisateur."
+    if ! systemctl --global enable edp-refresh-auto.service; then
+        echec "l'activation de edp-refresh-auto.service a échoué : la fréquence selon l'alimentation ne démarrera pas. Corrigez puis relancez l'installateur."
+        exit 1
+    fi
+    ok "fréquence selon l'alimentation installée."
+fi
+
+info "vérification (à titre indicatif, sans effet sur le résultat de l'installation) :"
+bash "$ici/verifier.sh" || true
+if [ "$frequence" -eq 1 ]; then
+    info "la fréquence selon l'alimentation démarre à la prochaine ouverture de session graphique de $utilisateur."
 fi

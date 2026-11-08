@@ -21,6 +21,10 @@ for arg in "$@"; do
 done
 
 # Validation avant toute action.
+if ! [[ "$MSI_EC_REF" =~ ^[0-9a-f]{7,40}$ ]]; then
+    echec "MSI_EC_REF invalide (« ${MSI_EC_REF} ») : un identifiant de commit en hexadécimal minuscule (7 à 40 caractères) est attendu."
+    exit 1
+fi
 seuil="${SEUIL_CHARGE-80}"
 if ! [[ "$seuil" =~ ^[0-9]{2,3}$ ]] || [ "$((10#$seuil))" -lt 50 ] || [ "$((10#$seuil))" -gt 100 ]; then
     echec "SEUIL_CHARGE invalide (« ${seuil} ») : un entier de 50 à 100 est attendu."
@@ -117,4 +121,6 @@ udevadm settle
 
 trap - ERR INT TERM
 ok "msi-ec $version installé ($installes noyau(x)), seuil de charge $seuil %"
+info "vérification (à titre indicatif, sans effet sur le résultat de l'installation) :"
+bash "$ici/verifier.sh" || true
 info "utilisateur $utilisateur ajouté au groupe $GROUPE : déconnectez-vous puis reconnectez-vous pour que le droit prenne effet."

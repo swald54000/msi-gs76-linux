@@ -24,6 +24,9 @@ sauvegardé dans `/var/lib/msi-gs76-linux/sauvegardes/`.
     sudo ./installer.sh [--force]
     ./verifier.sh        # sans privilèges ; code 0 sain, 1 absent, 2 défaut
 
+À la fin, l'installateur lance `verifier.sh` et affiche son résultat, à titre indicatif :
+il ne change pas le code de sortie de l'installation.
+
 `--force` contourne la vérification du matériel (GS76, firmware 17M1).
 
 ## Désinstallation

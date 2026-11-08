@@ -35,5 +35,7 @@ if [ "$seuil" != "$seuil_attendu" ]; then
     echo "DÉFAUT seuil de charge : ${seuil:-illisible} au lieu de $seuil_attendu"
     exit 2
 fi
-echo "OK msi-ec du fork actif, groupe msi-ec, seuil de charge $seuil %"
+version_module="$(cat "$RACINE/sys/module/msi_ec/version" 2>/dev/null || true)"
+[ -n "$version_module" ] || version_module="$(modinfo -F version msi_ec 2>/dev/null || true)"
+echo "OK msi-ec du fork actif (module version ${version_module:-inconnue}), groupe msi-ec, seuil de charge $seuil %"
 exit 0

@@ -25,6 +25,7 @@ case "$*" in
 "disable --now i915-psr-force.service") rm -f "$RACINE/psr-actif" ;;
 "is-active i915-psr-force"*) [ -e "$RACINE/psr-actif" ] ;;
 "--global enable edp-refresh-auto.service")
+    [ "${ENABLE_ECHEC:-0}" = 1 ] && exit 1
     mkdir -p "$RACINE/etc/systemd/user/graphical-session.target.wants"
     ln -sf ../edp-refresh-auto.service "$RACINE/etc/systemd/user/graphical-session.target.wants/edp-refresh-auto.service" ;;
 "--global is-enabled edp-refresh-auto.service")
@@ -51,7 +52,15 @@ verifier; code=$?
 verifie "avant installation : code 1" test "$code" -eq 1
 verifie "avant installation : ABSENT" grep -q '^ABSENT ' "$RACINE/sortie"
 
+# Activation globale en échec : ÉCHEC, code non nul, jamais de message de réussite.
+preparer
+ENABLE_ECHEC=1 installer; code=$?
+verifie "activation en échec : code non nul" test "$code" -ne 0
+verifie "activation en échec : ÉCHEC affiché" grep -q '^ÉCHEC .*edp-refresh-auto' "$RACINE/sortie"
+verifie "activation en échec : pas de message de réussite" bash -c '! grep -q "^OK fréquence selon l.alimentation installée" "$1"' _ "$RACINE/sortie"
+
 # Sans option : les trois fichiers.
+preparer
 installer; code=$?
 verifie "sans option : code 0" test "$code" -eq 0
 verifie "sans option : service PSR identique" cmp -s "$corr/i915-psr-force.service" "$RACINE$PSR"
@@ -61,9 +70,11 @@ verifie "unité utilisateur : chemin absolu du script" grep -q "^ExecStart=$SCRI
 verifie "sans option : PSR activé" grep -q '^systemctl enable --now i915-psr-force.service' "$RACINE/journal"
 verifie "sans option : unité activée globalement" grep -q '^systemctl --global enable edp-refresh-auto.service' "$RACINE/journal"
 verifie "sans option : lien d'activation créé" test -L "$RACINE$LIEN"
+verifie "sans option : sortie du verifier.sh affichée" grep -q '^OK fréquence : unité utilisateur activée' "$RACINE/sortie"
+verifie "sans option : prochain démarrage de session annoncé" grep -qi 'prochaine ouverture de session' "$RACINE/sortie"
 verifier; code=$?
 verifie "après installation : code 0" test "$code" -eq 0
-verifie "après installation : deux lignes OK" test "$(grep -c '^OK ' "$RACINE/sortie")" -eq 2
+verifie "après installation : deux lignes OK" grep -q '^OK fréquence : unité utilisateur activée' "$RACINE/sortie"
 
 installer; code=$?
 verifie "seconde installation : code 0" test "$code" -eq 0

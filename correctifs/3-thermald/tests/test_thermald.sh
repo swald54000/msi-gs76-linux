@@ -29,6 +29,7 @@ installer; code=$?
 verifie "installation : code 0" test "$code" -eq 0
 verifie "installation : complément présent et identique" cmp -s "$corr/wait-rapl.conf" "$RACINE$CONF"
 verifie "installation : daemon-reload appelé" grep -q '^systemctl daemon-reload' "$RACINE/journal"
+verifie "installation : sortie du verifier.sh affichée" grep -q '^OK thermald attend RAPL' "$RACINE/sortie"
 verifier; code=$?
 verifie "après installation : code 0" test "$code" -eq 0
 verifie "après installation : OK" grep -q '^OK ' "$RACINE/sortie"
@@ -60,6 +61,17 @@ echo "# avant" >"$RACINE$CONF"
 installer
 desinstaller
 verifie "complément préexistant restauré" test "$(cat "$RACINE$CONF")" = "# avant"
+
+# Verifier en défaut : affiché, mais le code de l'installateur ne change pas.
+preparer
+copie="$RACINE/copie"
+mkdir -p "$copie/correctifs" "$copie/lib"
+cp -r "$corr" "$copie/correctifs/3-thermald"
+cp "$corr/../../lib/commun.sh" "$copie/lib/"
+printf '#!/bin/bash\necho "DÉFAUT simulé"\nexit 2\n' >"$copie/correctifs/3-thermald/verifier.sh"
+bash "$copie/correctifs/3-thermald/installer.sh" >"$RACINE/sortie" 2>&1; code=$?
+verifie "verifier en défaut : code de l'installateur inchangé (0)" test "$code" -eq 0
+verifie "verifier en défaut : sortie affichée" grep -q '^DÉFAUT simulé' "$RACINE/sortie"
 
 # Matériel non reconnu : refus.
 preparer

@@ -25,6 +25,18 @@ else
     echo "ok   fichiers à shebang exécutables"
 fi
 
+# Lint : « ${RACINE:?} » (ou ?) fait échouer les scripts sur un vrai système, où RACINE est vide
+interdit=$(git ls-files -co --exclude-standard 2>/dev/null | grep -v '^tests/lancer.sh$' | while IFS= read -r f; do
+    [ -f "$f" ] && grep -InE 'RACINE:?[?]' "$f" /dev/null
+done)
+if [ -n "$interdit" ]; then
+    echo "FAIL expansion obligatoire sur RACINE (vide sur un vrai système) :"
+    printf '%s\n' "$interdit" | sed 's/^/     /'
+    echecs=$((echecs + 1))
+else
+    echo "ok   aucune expansion obligatoire sur RACINE"
+fi
+
 # Outil d'analyse : shellcheck installé, sinon via uvx
 if command -v shellcheck >/dev/null 2>&1; then
     shellcheck_cmd=(shellcheck)

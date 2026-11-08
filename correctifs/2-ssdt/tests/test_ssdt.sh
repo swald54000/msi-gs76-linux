@@ -17,6 +17,7 @@ preparer() {
     mkdir -p "$RACINE/usr/lib/initcpio/install"
     : >"$RACINE/usr/lib/initcpio/install/acpi_override"
     faux_cmd id 'echo 0'
+    faux_cmd journalctl 'exit 1'
     faux_cmd snapper 'echo "snapper $*" >>"$RACINE/journal"'
     faux_cmd limine-mkinitcpio 'echo "limine-mkinitcpio" >>"$RACINE/journal"'
     faux_cmd mkinitcpio 'echo "mkinitcpio $*" >>"$RACINE/journal"'
@@ -34,6 +35,8 @@ verifie "installation : table installée" cmp -s "$corr/ssdt-gs76.aml" "$RACINE$
 verifie "installation : conf présente avec le contenu exact" test "$(cat "$RACINE$CONF")" = 'HOOKS+=(acpi_override)'
 verifie "installation : limine-mkinitcpio appelé" grep -q '^limine-mkinitcpio' "$RACINE/journal"
 verifie "installation : instantané demandé" grep -q '^snapper ' "$RACINE/journal"
+verifie "installation : sortie du verifier.sh affichée" grep -Eq '^(ABSENT|DÉFAUT|OK SSDT installée, aucun)' "$RACINE/sortie"
+verifie "installation : redémarrage annoncé en dernier" bash -c 'tail -n 1 "$1" | grep -qi "redémarr"' _ "$RACINE/sortie"
 
 # Sans limine-mkinitcpio : repli sur mkinitcpio -P. PATH réduit aux outils système
 # (liens symboliques) moins limine-mkinitcpio, qui peut exister sur la machine de test.
@@ -171,6 +174,24 @@ profil 'N: Name="Elan Touchpad"'
 verifier; code=$?
 verifie "journal lisible sans GS76FIX : code 2" test "$code" -eq 2
 verifie "journal lisible sans GS76FIX : DÉFAUT" grep -q '^DÉFAUT ' "$RACINE/sortie"
+
+# Erreurs _OSC de l'IETM dans le journal (ETMD non défini) : défaut, même avec GS76FIX présent.
+preparer
+installer
+journal_faux 'kernel: ACPI: SSDT GS76FIX
+kernel: ACPI BIOS Error (bug): Could not resolve symbol [\_TZ.ETMD], AE_NOT_FOUND
+kernel: ACPI Error: Aborting method \_SB.IETM._OSC due to previous error (AE_NOT_FOUND)'
+profil 'N: Name="Elan Touchpad"'
+verifier; code=$?
+verifie "erreur IETM._OSC dans le journal : code 2" test "$code" -eq 2
+verifie "erreur IETM._OSC : DÉFAUT" grep -q '^DÉFAUT .*_OSC' "$RACINE/sortie"
+journal_faux 'kernel: ACPI: SSDT GS76FIX
+kernel: ACPI BIOS Error (bug): Could not resolve symbol [\_TZ.ETMD], AE_NOT_FOUND'
+verifier; code=$?
+verifie "erreur ETMD seule dans le journal : code 2" test "$code" -eq 2
+journal_faux 'kernel: ACPI: SSDT GS76FIX'
+verifier; code=$?
+verifie "journal sans erreur IETM : code 0" test "$code" -eq 0
 
 # Détail selon l'ancienneté de l'installation par rapport au démarrage.
 preparer

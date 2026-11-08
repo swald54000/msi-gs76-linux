@@ -19,7 +19,12 @@ for script in "$dossier"/*/verifier.sh; do
         1) etat="non installé" ;;
         *) etat="en défaut"; defauts=$((defauts + 1)) ;;
     esac
-    detail="$(printf '%s\n' "$sortie" | grep -m1 '^DÉFAUT' || true)"
+    # Détail : première ligne DÉFAUT, sinon OK, sinon ABSENT, sinon la première ligne (hors INFO d'en-tête).
+    detail=""
+    for motif in '^DÉFAUT' '^OK' '^ABSENT'; do
+        detail="$(printf '%s\n' "$sortie" | grep -m1 "$motif" || true)"
+        [ -n "$detail" ] && break
+    done
     [ -n "$detail" ] || detail="$(printf '%s\n' "$sortie" | head -n 1)"
     lignes+=("$nom|$etat|$detail")
 done

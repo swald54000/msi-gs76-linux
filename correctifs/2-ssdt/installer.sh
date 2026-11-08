@@ -50,4 +50,7 @@ if ! reconstruire_initramfs; then
     exit 1
 fi
 
-ok "SSDT installée : redémarrez, puis lancez verifier.sh."
+ok "SSDT installée."
+info "vérification (à titre indicatif, sans effet sur le résultat de l'installation ; avant le redémarrage elle signale normalement que la table n'est pas encore chargée) :"
+bash "$ici/verifier.sh" || true
+info "un redémarrage est nécessaire pour que la table soit chargée ; relancez ensuite verifier.sh."
