@@ -10,8 +10,13 @@ measurements and what they show. **None of it is needed to use the fixes.**
 > (`modprobe ec_sys write_support=0`) and stop if `ec_sys` is already loaded with write
 > support; they unload it at the end. Some tools change settings for the duration of a
 > measurement (fan mode, `shift_mode`, `super_battery`, screen refresh rate, i915 PSR,
-> battery cache, USB/PCI devices, services) and restore them at the end, including on
-> Ctrl-C. Two of them install system files (`diagnostics-energie/enable-psr.sh`,
+> battery cache, USB/PCI devices, services) and restore them at the end. Restoration
+> also happens on Ctrl-C or error (`trap`) only in `ec-dump-load.sh`, `sb-ec.sh`,
+> `sb-batterie.sh`, `diag-idle2.sh`, `diag-psr.sh`, `diag-display.sh`,
+> `diag-services.sh` and `measure-battery.sh`; `diag-psr2.sh` restores only the DRM
+> debug level that way. `ec-dump.sh`, `diag-idle.sh` and `diag-root.sh` restore only at
+> a normal end: if interrupted, reset the fan mode, the refresh rate or the battery
+> `cache_time` by hand. Two of them install system files (`diagnostics-energie/enable-psr.sh`,
 > `usb-clavier/install.sh`). They were written for one machine: read a script before
 > running it. No EC byte was ever written directly during this research.
 
@@ -47,11 +52,13 @@ Community sources:
 ## 1. EC register map
 
 Values read in `ec/dumps/` with `ec/decode.py` (**verified on this machine** unless noted).
-The dumps were taken in `comfort` shift mode with an 80 % charge limit.
+All dumps have `0xD2` = `0xC1` and an 80 % charge limit. The shift mode was most
+likely `comfort`: this is an inference from YAMDCC naming `C1` like msi-ec's `comfort`,
+not a recorded setting.
 
 | Address | Meaning | Observed | Label |
 |---|---|---|---|
-| `0x68` | CPU temperature (°C) | 51–59 | verified (equals the package temperature) |
+| `0x68` | CPU temperature (°C) | 51–65 | verified (equals the package temperature) |
 | `0x6A`–`0x70` | CPU curve temperatures | 52 60 65 70 82 88 100 | bytes verified; meaning community (YAMDCC, MControlCenter, PR #143, #848) |
 | `0x71` | CPU fan, current speed (%) | 0, then 60 under load | verified |
 | `0x72`–`0x78` | CPU curve speeds (%) | 0 45 50 60 65 70 75 | bytes verified; meaning community (same sources) |
@@ -61,7 +68,7 @@ The dumps were taken in `comfort` shift mode with an 80 % charge limit.
 | `0x89` | GPU fan, current speed (%) | 0 | verified (dGPU asleep) |
 | `0x8A`–`0x90` | GPU curve speeds (%) | 0 50 60 70 75 80 110 | bytes verified; meaning community |
 | `0x92`–`0x97` | GPU hysteresis (°C) | 8 3 3 3 3 5 | bytes verified; meaning community (YAMDCC) |
-| `0x98` bit 7 | Cooler Boost | bit clear (off) | community (msi-ec, MControlCenter) |
+| `0x98` bit 7 | Cooler Boost | bit clear (off) | bit verified; meaning community (msi-ec) |
 | `0xA0`–`0xBB` | EC firmware version and build date | `17M1EMS1.113`, 2022-04-22 | verified |
 | `0xBF` | USB power share | `0x28` | value verified; `0x28` = on, `0x08` = off: community (MControlCenter) |
 | `0xC8`–`0xC9` | CPU fan tachometer: period, big-endian | `0x00A6` at 60 % | verified under load |
@@ -114,10 +121,12 @@ fork (correctif 1) use the 6-threshold model.
 
 - **Battery status `_BST`**: the method ends with `Sleep (0x64)`, so every uncached
   battery read takes about 114 ms; each poll causes a visible stutter in games —
-  **verified on this machine** (`measure-battery.sh`). With the `Sleep` removed (test
-  with a full DSDT override, not published) a read takes about 13 ms, the value in
-  section 1 of `diag-root.txt` — **verified on this machine**. Published workaround: battery
-  cache (correctif 4).
+  **verified on this machine** (earlier measurement with `measure-battery.sh`, recorded
+  in the working notes; its output was not kept). The same notes record 114 → 13 ms
+  per read with a patched DSDT (`Sleep` removed, full override, not published) — an
+  earlier measurement, not reproduced here. `diag-root.txt` (section 1) shows about
+  13 ms per read, but that file does not record which firmware tables were loaded.
+  Published workaround: battery cache (correctif 4).
 - **Full DSDT override rejected**: it hard-codes firmware memory addresses. Once the
   firmware moved its ACPI regions by `0x10000`; the override then pointed to stale PCI
   windows and the NVMe drive was not found at boot — **verified on this machine**.

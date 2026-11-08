@@ -12,7 +12,13 @@ les correctifs.**
 > écriture ; ils le déchargent à la fin. Certains modifient des réglages le temps d'une
 > mesure (mode des ventilateurs, `shift_mode`, `super_battery`, fréquence de l'écran,
 > PSR d'i915, cache batterie, périphériques USB/PCI, services) et les rétablissent à la
-> fin, y compris sur Ctrl-C. Deux installent des fichiers système
+> fin. Le rétablissement a aussi lieu sur Ctrl-C ou erreur (`trap`) seulement dans
+> `ec-dump-load.sh`, `sb-ec.sh`, `sb-batterie.sh`, `diag-idle2.sh`, `diag-psr.sh`,
+> `diag-display.sh`, `diag-services.sh` et `measure-battery.sh` ; `diag-psr2.sh` ne
+> rétablit ainsi que le niveau de débogage DRM. `ec-dump.sh`, `diag-idle.sh` et
+> `diag-root.sh` ne rétablissent qu'en fin normale : s'ils sont interrompus, remettez à
+> la main le mode des ventilateurs, la fréquence de l'écran ou le `cache_time` de la
+> batterie. Deux installent des fichiers système
 > (`diagnostics-energie/enable-psr.sh`, `usb-clavier/install.sh`). Ils ont été écrits
 > pour une seule machine : lisez un script avant de le lancer. Aucun octet de l'EC n'a
 > été écrit directement pendant cette recherche.
@@ -49,12 +55,13 @@ Sources communautaires :
 ## 1. Carte des registres de l'EC
 
 Valeurs lues dans `ec/dumps/` avec `ec/decode.py` (**vérifié sur la machine** sauf
-mention contraire). Les dumps ont été pris en mode `comfort` avec une limite de charge
-de 80 %.
+mention contraire). Tous les dumps ont `0xD2` = `0xC1` et une limite de charge de 80 %.
+Le mode était très probablement `comfort` : c'est une déduction (YAMDCC nomme `C1` comme
+le `comfort` de msi-ec), pas un réglage enregistré.
 
 | Adresse | Signification | Observé | Étiquette |
 |---|---|---|---|
-| `0x68` | température CPU (°C) | 51–59 | vérifié (égale à la température du package) |
+| `0x68` | température CPU (°C) | 51–65 | vérifié (égale à la température du package) |
 | `0x6A`–`0x70` | températures de la courbe CPU | 52 60 65 70 82 88 100 | octets vérifiés ; signification communautaire (YAMDCC, MControlCenter, PR #143, #848) |
 | `0x71` | ventilateur CPU, vitesse actuelle (%) | 0, puis 60 en charge | vérifié |
 | `0x72`–`0x78` | vitesses de la courbe CPU (%) | 0 45 50 60 65 70 75 | octets vérifiés ; signification communautaire (mêmes sources) |
@@ -64,7 +71,7 @@ de 80 %.
 | `0x89` | ventilateur GPU, vitesse actuelle (%) | 0 | vérifié (GPU endormi) |
 | `0x8A`–`0x90` | vitesses de la courbe GPU (%) | 0 50 60 70 75 80 110 | octets vérifiés ; signification communautaire |
 | `0x92`–`0x97` | hystérésis GPU (°C) | 8 3 3 3 3 5 | octets vérifiés ; signification communautaire (YAMDCC) |
-| `0x98` bit 7 | Cooler Boost | bit à 0 (inactif) | communautaire (msi-ec, MControlCenter) |
+| `0x98` bit 7 | Cooler Boost | bit à 0 (inactif) | bit vérifié ; signification communautaire (msi-ec) |
 | `0xA0`–`0xBB` | version et date de compilation du firmware EC | `17M1EMS1.113`, 2022-04-22 | vérifié |
 | `0xBF` | partage d'alimentation USB | `0x28` | valeur vérifiée ; `0x28` = actif, `0x08` = inactif : communautaire (MControlCenter) |
 | `0xC8`–`0xC9` | compte-tours du ventilateur CPU : période, gros-boutiste | `0x00A6` à 60 % | vérifié en charge |
@@ -122,9 +129,12 @@ contiennent 55 61 65 71 77 87 100 (**vérifié sur la machine**). Deux lectures 
 
 - **État de la batterie `_BST`** : la méthode se termine par `Sleep (0x64)`, donc chaque
   lecture hors cache prend environ 114 ms ; chaque interrogation provoque une saccade
-  visible en jeu — **vérifié sur la machine** (`measure-battery.sh`). Sans ce `Sleep`
-  (essai avec une surcharge complète de la DSDT, non publiée), une lecture prend environ
-  13 ms, la valeur de la section 1 de `diag-root.txt` — **vérifié sur la machine**.
+  visible en jeu — **vérifié sur la machine** (mesure antérieure avec
+  `measure-battery.sh`, consignée dans les notes de travail ; sa sortie n'a pas été
+  conservée). Les mêmes notes consignent 114 → 13 ms par lecture avec une DSDT modifiée
+  (`Sleep` retiré, surcharge complète, non publiée) : une mesure antérieure, non
+  reproduite ici. `diag-root.txt` (section 1) montre environ 13 ms par lecture, mais ce
+  fichier n'indique pas quelles tables du firmware étaient chargées.
   Contournement publié : cache batterie (correctif 4).
 - **Surcharge complète de la DSDT écartée** : elle fige des adresses mémoire du firmware.
   Un jour, le firmware a décalé ses régions ACPI de `0x10000` ; la surcharge pointait
