@@ -27,7 +27,7 @@ faux_systeme() {
 # faux_cmd <nom> <script> : écrit un faux exécutable dans $FAUX_BIN.
 faux_cmd() {
     local nom="$1" script="$2"
-    printf '#!/usr/bin/env bash\n%s\n' "$script" >"$FAUX_BIN/$nom"
+    printf '#!/bin/bash\n%s\n' "$script" >"$FAUX_BIN/$nom"
     chmod +x "$FAUX_BIN/$nom"
 }
 
