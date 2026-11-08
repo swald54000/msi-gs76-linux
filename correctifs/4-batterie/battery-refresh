@@ -1,0 +1,20 @@
+#!/bin/sh
+# Rafraîchit l'état de la batterie en tâche de fond, pour que ce soit ce service
+# (et non un jeu) qui paie les ~114 ms de la méthode ACPI _BST du BIOS MSI.
+# Le chemin de la batterie vient de la configuration écrite par l'installateur.
+# BATTERIE_CONF et CACHE_BATTERIE_PARAM ne servent qu'aux tests.
+CONF="${BATTERIE_CONF:-/etc/msi-gs76-linux/batterie.conf}"
+P="${CACHE_BATTERIE_PARAM:-/sys/module/battery/parameters/cache_time}"
+
+BATTERIE=
+# shellcheck disable=SC1090
+[ -r "$CONF" ] && . "$CONF"
+if [ -z "$BATTERIE" ] || [ ! -r "$BATTERIE/status" ]; then
+    echo "battery-refresh : batterie introuvable (voir $CONF)" >&2
+    exit 1
+fi
+
+old=$(cat "$P")
+echo 1 >"$P"
+cat "$BATTERIE/status" >/dev/null
+echo "$old" >"$P"

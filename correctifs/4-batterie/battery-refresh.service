@@ -1,0 +1,6 @@
+[Unit]
+Description=Rafraîchissement de l'état de la batterie (contournement de la méthode _BST lente des MSI)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/battery-refresh

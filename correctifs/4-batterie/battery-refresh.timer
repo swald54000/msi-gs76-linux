@@ -1,0 +1,10 @@
+[Unit]
+Description=Rafraîchit l'état de la batterie à intervalle régulier
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=30s
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target
