@@ -1,0 +1,46 @@
+#!/bin/bash
+# La fréquence de la dalle interne suit l'alimentation : la plus basse sur batterie,
+# la plus haute sur secteur.
+# À 60 Hz, i915 peut utiliser le PSR (le temps d'établissement PSR de 330 us de la
+# dalle ne tient pas à 360 Hz), ce qui laisse le paquet CPU quitter PC2 au repos
+# (environ 2,9 W -> 1,45 W mesurés).
+# Réglage à chaud uniquement : la configuration des moniteurs de Hyprland n'est pas
+# modifiée ; il est réappliqué après chaque rechargement de la configuration.
+
+export LC_ALL=C  # printf %f doit lire « 360.04 » (échoue avec la virgule décimale française)
+
+apply() {
+  local on_batt mon want cur
+  [[ $(busctl get-property org.freedesktop.UPower /org/freedesktop/UPower \
+    org.freedesktop.UPower OnBattery 2>/dev/null) == "b true" ]] && on_batt=1 || on_batt=0
+
+  # Dalle interne uniquement ; absente si désactivée (capot fermé)
+  mon=$(hyprctl monitors -j 2>/dev/null | jq -c 'first(.[] | select(.name | startswith("eDP")))') || return
+  [[ -n $mon ]] || return
+
+  want=$(jq -r --argjson batt "$on_batt" '
+    "\(.width)x\(.height)@" as $res
+    | [.availableModes[] | select(startswith($res)) | ltrimstr($res) | rtrimstr("Hz") | tonumber]
+    | if $batt == 1 then min else max end' <<<"$mon")
+  cur=$(jq -r '.refreshRate' <<<"$mon")
+  [[ -n $want && $want != null ]] || return
+
+  # Déjà à la bonne fréquence (comparaison des valeurs arrondies)
+  (( $(printf '%.0f' "$want") == $(printf '%.0f' "$cur") )) && return
+
+  hyprctl eval "$(jq -r --arg want "$want" '
+    "hl.monitor({ output = \"\(.name)\", mode = \"\(.width)x\(.height)@\($want)\", position = \"\(.x)x\(.y)\", scale = \(.scale) })"' <<<"$mon")" >/dev/null
+}
+
+apply
+
+sock="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+{
+  gdbus monitor --system --dest org.freedesktop.UPower --object-path /org/freedesktop/UPower \
+    | grep --line-buffered OnBattery &
+  socat -U - "UNIX-CONNECT:$sock" | grep --line-buffered -E '^(configreloaded|monitoradded)' &
+  wait
+} | while read -r _; do
+  sleep 1
+  apply
+done

@@ -1,0 +1,13 @@
+[Unit]
+Description=Autorise le PSR1 sur la dalle interne (le VBT des MSI le désactive)
+After=sys-kernel-debug.mount systemd-modules-load.service
+Requires=sys-kernel-debug.mount
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'for d in /sys/kernel/debug/dri/*; do grep -qs i915 "$d/name" && [ -w "$d/i915_edp_psr_debug" ] && echo 0x3 >"$d/i915_edp_psr_debug" && exit 0; done; exit 1'
+ExecStop=/bin/sh -c 'for d in /sys/kernel/debug/dri/*; do grep -qs i915 "$d/name" && [ -w "$d/i915_edp_psr_debug" ] && echo 0x0 >"$d/i915_edp_psr_debug"; done; true'
+
+[Install]
+WantedBy=multi-user.target

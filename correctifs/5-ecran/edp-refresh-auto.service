@@ -1,0 +1,13 @@
+[Unit]
+Description=Dalle interne à la fréquence la plus basse sur batterie, au maximum sur secteur
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/edp-refresh-auto
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
