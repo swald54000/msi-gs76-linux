@@ -52,3 +52,7 @@ Retire le pilote du fork, réinstalle la version précédente si ses sources son
 encore dans `/usr/src`, restaure la règle udev d'origine et supprime le groupe
 `msi-ec` s'il n'a plus aucun membre. Relancer l'installateur est sans danger :
 aucune ligne en double, aucune sauvegarde écrasée.
+
+Attention : si une relance de l'installateur échoue, le retour arrière remet le
+pilote présent avant la **première** installation (celui mémorisé dans
+`pilote-precedent`), pas l'installation précédente du fork.

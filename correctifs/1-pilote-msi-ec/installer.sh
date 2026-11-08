@@ -60,12 +60,13 @@ sauvegarder "$fichier_regle"
 
 # À partir d'ici, toute erreur ramène au pilote précédent.
 retour() {
-    trap - ERR
+    trap - ERR INT TERM
     echec "échec pendant l'installation : retour au pilote précédent."
     bash "$ici/desinstaller.sh" || avertir "le retour arrière a lui aussi échoué."
     exit 1
 }
 trap retour ERR
+trap 'retour' INT TERM
 
 for v in $(dkms status msi-ec 2>/dev/null | sed -n 's|^msi-ec/\([^,]*\),.*|\1|p' | grep '^gs76\.' | sort -u || true); do
     [ "$v" = "$version" ] || dkms remove "msi-ec/$v" --all
@@ -114,6 +115,6 @@ udevadm settle
 
 [ -e "$RACINE/sys/devices/platform/msi-ec/cpu/fan_curve" ] || { echec "le pilote du fork n'est pas actif (cpu/fan_curve absent)."; false; }
 
-trap - ERR
+trap - ERR INT TERM
 ok "msi-ec $version installé ($installes noyau(x)), seuil de charge $seuil %"
 info "utilisateur $utilisateur ajouté au groupe $GROUPE : déconnectez-vous puis reconnectez-vous pour que le droit prenne effet."

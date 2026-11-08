@@ -137,4 +137,13 @@ verifie "exiger_root refuse un non-root" test "$code" -eq 1
 faux_cmd id 'echo 0'
 verifie "exiger_root accepte root" exiger_root
 
+faux_systeme
+mkdir -p "$RACINE/etc"
+verifie "a_une_sauvegarde : aucune au départ" echoue a_une_sauvegarde /etc/s
+echo x >"$RACINE/etc/s"
+sauvegarder /etc/s
+verifie "a_une_sauvegarde : fichier sauvegardé" a_une_sauvegarde /etc/s
+sauvegarder /etc/absent
+verifie "a_une_sauvegarde : marqueur d'absence" a_une_sauvegarde /etc/absent
+
 fin

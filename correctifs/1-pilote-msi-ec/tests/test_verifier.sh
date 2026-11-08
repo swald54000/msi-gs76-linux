@@ -45,4 +45,14 @@ echo 100 >"$RACINE/sys/class/power_supply/BAT0/charge_control_end_threshold"
 verifier; code=$?
 verifie "mauvais seuil : code 2" test "$code" -eq 2
 verifie "mauvais seuil : détail" grep -q '^DÉFAUT .*seuil' "$RACINE/sortie"
+preparer
+mkdir -p "$RACINE/etc/udev/rules.d"
+source "$corr/regle-udev.sh"
+regle_udev msi-ec 70 BAT0 >"$RACINE/etc/udev/rules.d/99-msi-ec.rules"
+echo 70 >"$RACINE/sys/class/power_supply/BAT0/charge_control_end_threshold"
+verifier; code=$?
+verifie "seuil 70 lu dans la règle : code 0" test "$code" -eq 0
+echo 80 >"$RACINE/sys/class/power_supply/BAT0/charge_control_end_threshold"
+verifier; code=$?
+verifie "seuil réel 80 ≠ règle 70 : code 2" test "$code" -eq 2
 fin

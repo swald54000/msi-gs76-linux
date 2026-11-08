@@ -31,7 +31,7 @@ exit 0'
     faux_cmd getent '[ -e "$RACINE/groupe-existe" ] && { echo "msi-ec:x:990:"; exit 0; }; exit 2'
     faux_cmd groupadd 'echo "groupadd $*" >>"$RACINE/journal"; touch "$RACINE/groupe-existe"'
     faux_cmd usermod 'echo "usermod $*" >>"$RACINE/journal"'
-    for c in modprobe udevadm systemctl mkinitcpio limine-mkinitcpio snapper; do
+    for c in modprobe udevadm systemctl mkinitcpio limine-mkinitcpio snapper groupdel gpasswd depmod; do
         faux_cmd "$c" "echo \"$c \$*\" >>\"\$RACINE/journal\""
     done
     export SUDO_USER=alice MSI_EC_REF=4b72e41bdeb6d0c9949dd3b16a5dff1a6956ff97
@@ -44,7 +44,7 @@ preparer "7.2.14-1-omarchy"
 DKMS_ECHEC=1 installer; code=$?
 verifie "échec dkms : code non nul" test "$code" -ne 0
 verifie "échec dkms : version précédente réinstallée" grep -q 'dkms install msi-ec/r734.d7fbbd8' "$RACINE/journal"
-verifie "échec dkms : pas de sources du fork laissées" bash -c 'ls "$1"/usr/src | grep -vq gs76' _ "$RACINE"
+verifie "échec dkms : pas de sources du fork laissées" bash -c '! compgen -G "$1/usr/src/msi-ec-gs76.*"' _ "$RACINE"
 verifie "échec dkms : pas de règle udev" test ! -e "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
 
 # 2. Succès.

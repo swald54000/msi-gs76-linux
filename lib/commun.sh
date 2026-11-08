@@ -113,6 +113,13 @@ sauvegarder() {
     fi
 }
 
+# Retour 0 si une sauvegarde (ou le marqueur « .absent ») existe pour ce fichier.
+a_une_sauvegarde() {
+    local src
+    src="$(_dossier_sauvegardes)$1"
+    [ -e "$src" ] || [ -e "$src.absent" ]
+}
+
 # Remet la sauvegarde, ou supprime le fichier s'il n'en existait pas.
 # La sauvegarde est conservée : appeler restaurer plusieurs fois est inoffensif.
 restaurer() {

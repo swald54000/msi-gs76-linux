@@ -41,8 +41,7 @@ else
 fi
 
 # Règle udev : on ne restaure que s'il existe une sauvegarde (ou un marqueur d'absence).
-sauv="$(_dossier_sauvegardes)$fichier_regle"
-if [ -e "$sauv" ] || [ -e "$sauv.absent" ]; then
+if a_une_sauvegarde "$fichier_regle"; then
     restaurer "$fichier_regle"
 else
     avertir "aucune sauvegarde de la règle udev : fichier laissé tel quel."

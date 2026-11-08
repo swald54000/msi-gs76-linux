@@ -7,7 +7,13 @@ ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$ici/../../lib/commun.sh"
 
 RACINE="${RACINE:-}"
-seuil_attendu="${SEUIL_CHARGE-80}"
+# Seuil attendu : SEUIL_CHARGE s'il est défini, sinon celui de la règle installée, sinon 80.
+if [ -n "${SEUIL_CHARGE+x}" ]; then
+    seuil_attendu="$SEUIL_CHARGE"
+else
+    seuil_attendu="$(sed -n 's/.*echo \([0-9][0-9]*\) >.*/\1/p' "$RACINE/etc/udev/rules.d/99-msi-ec.rules" 2>/dev/null | head -n 1)"
+    seuil_attendu="${seuil_attendu:-80}"
+fi
 pilote="$RACINE/sys/devices/platform/msi-ec"
 
 if [ ! -d "$pilote" ]; then
