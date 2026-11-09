@@ -8,7 +8,7 @@ ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$ici/regle-udev.sh"
 
 MSI_EC_DEPOT="${MSI_EC_DEPOT:-https://github.com/swald54000/msi-ec.git}"
-MSI_EC_REF="${MSI_EC_REF:-4b72e41bdeb6d0c9949dd3b16a5dff1a6956ff97}"
+MSI_EC_REF="${MSI_EC_REF:-fee443a2ad81ea438af5b3397d4a88a4cdcf60b5}"
 GROUPE=msi-ec
 RACINE="${RACINE:-}"
 

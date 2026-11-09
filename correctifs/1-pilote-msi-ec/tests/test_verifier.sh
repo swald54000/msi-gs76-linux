@@ -15,7 +15,7 @@ preparer() {
     : >"$RACINE/sys/devices/platform/msi-ec/fan_mode"
     faux_cmd id 'echo 1000'
     faux_cmd stat 'echo "${GROUPE_FAUX:-msi-ec}"'
-    faux_cmd modinfo 'echo "${VERSION_FAUX-gs76.4b72e41}"'
+    faux_cmd modinfo 'echo "${VERSION_FAUX-gs76.fee443a}"'
 }
 verifier() { bash "$corr/verifier.sh" >"$RACINE/sortie" 2>&1; }
 
@@ -23,7 +23,7 @@ preparer
 verifier; code=$?
 verifie "sain : code 0" test "$code" -eq 0
 verifie "sain : sortie OK" grep -q '^OK ' "$RACINE/sortie"
-verifie "sain : version du module (modinfo)" grep -q '^OK .*gs76.4b72e41' "$RACINE/sortie"
+verifie "sain : version du module (modinfo)" grep -q '^OK .*gs76.fee443a' "$RACINE/sortie"
 
 preparer
 mkdir -p "$RACINE/sys/module/msi_ec"

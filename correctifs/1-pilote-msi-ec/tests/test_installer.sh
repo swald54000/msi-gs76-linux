@@ -34,7 +34,7 @@ exit 0'
     for c in modprobe udevadm systemctl mkinitcpio limine-mkinitcpio snapper groupdel gpasswd depmod; do
         faux_cmd "$c" "echo \"$c \$*\" >>\"\$RACINE/journal\""
     done
-    export SUDO_USER=alice MSI_EC_REF=4b72e41bdeb6d0c9949dd3b16a5dff1a6956ff97
+    export SUDO_USER=alice MSI_EC_REF=fee443a2ad81ea438af5b3397d4a88a4cdcf60b5
     export MSI_EC_NOYAUX="$1"
 }
 installer() { bash "$corr/installer.sh" "$@" >"$RACINE/sortie" 2>&1; }
@@ -51,9 +51,9 @@ verifie "échec dkms : pas de règle udev" test ! -e "$RACINE/etc/udev/rules.d/9
 preparer "7.2.14-1-omarchy"
 installer; code=$?
 verifie "succès : code 0" test "$code" -eq 0
-verifie "succès : sources dans usr/src" test -f "$RACINE/usr/src/msi-ec-gs76.4b72e41/dkms.conf"
-verifie "succès : version substituée" grep -q 'gs76.4b72e41' "$RACINE/usr/src/msi-ec-gs76.4b72e41/dkms.conf"
-verifie "succès : commit figé demandé à git" grep -q '4b72e41bdeb6d0c9949dd3b16a5dff1a6956ff97' "$RACINE/journal"
+verifie "succès : sources dans usr/src" test -f "$RACINE/usr/src/msi-ec-gs76.fee443a/dkms.conf"
+verifie "succès : version substituée" grep -q 'gs76.fee443a' "$RACINE/usr/src/msi-ec-gs76.fee443a/dkms.conf"
+verifie "succès : commit figé demandé à git" grep -q 'fee443a2ad81ea438af5b3397d4a88a4cdcf60b5' "$RACINE/journal"
 verifie "succès : règle udev écrite" grep -q 'chgrp msi-ec' "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
 verifie "succès : seuil 80 par défaut" grep -q 'echo 80 ' "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
 verifie "succès : règle sans RACINE" bash -c '! grep -q "$1" "$2"' _ "$RACINE" "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
@@ -66,7 +66,7 @@ verifie "succès : pilote précédent mémorisé" grep -qx 'r734.d7fbbd8' "$RACI
 
 # 3. Deuxième exécution : aucun doublon, précédent inchangé.
 faux_cmd dkms 'echo "dkms $*" >>"$RACINE/journal"
-[ "$1" = status ] && echo "msi-ec/gs76.4b72e41, 7.2.14-1-omarchy, x86_64: installed"
+[ "$1" = status ] && echo "msi-ec/gs76.fee443a, 7.2.14-1-omarchy, x86_64: installed"
 exit 0'
 cp "$RACINE/etc/udev/rules.d/99-msi-ec.rules" "$RACINE/regle-avant"
 installer; code=$?
@@ -80,11 +80,11 @@ preparer "7.2.14-1-omarchy 7.2.15-2-omarchy"
 rmdir "$RACINE/usr/lib/modules/7.2.14-1-omarchy/build"
 installer; code=$?
 verifie "noyau sans build : ignoré signalé" grep -q 'noyau 7.2.14-1-omarchy ignoré' "$RACINE/sortie"
-verifie "noyau avec build : installé" grep -q 'dkms install msi-ec/gs76.4b72e41 -k 7.2.15-2-omarchy' "$RACINE/journal"
+verifie "noyau avec build : installé" grep -q 'dkms install msi-ec/gs76.fee443a -k 7.2.15-2-omarchy' "$RACINE/journal"
 verifie "noyau sans build : pas installé" bash -c '! grep -q -- "-k 7.2.14-1-omarchy" "$1"' _ "$RACINE/journal"
 
 # 4b. MSI_EC_REF invalide : refus avant tout changement.
-for ref in "../x" "ABCDEF1" "abc" "4b72e41; rm" "g123456" "$(printf 'a%.0s' {1..41})"; do
+for ref in "../x" "ABCDEF1" "abc" "fee443a; rm" "g123456" "$(printf 'a%.0s' {1..41})"; do
     preparer "7.2.14-1-omarchy"
     MSI_EC_REF="$ref" installer; code=$?
     verifie "MSI_EC_REF='${ref:0:12}' refusé" test "$code" -ne 0
@@ -92,7 +92,7 @@ for ref in "../x" "ABCDEF1" "abc" "4b72e41; rm" "g123456" "$(printf 'a%.0s' {1..
     verifie "MSI_EC_REF='${ref:0:12}' : git jamais appelé" test ! -e "$RACINE/journal"
 done
 preparer "7.2.14-1-omarchy"
-MSI_EC_REF=4b72e41 installer; code=$?
+MSI_EC_REF=fee443a installer; code=$?
 verifie "MSI_EC_REF court valide (7 car.) accepté" test "$code" -eq 0
 
 # 5. Matériel non GS76 : arrêt avant git.

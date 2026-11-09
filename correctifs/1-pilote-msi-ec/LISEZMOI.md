@@ -10,7 +10,7 @@ une version corrigée issue d'un fork public, et ouvre les réglages à un group
 ## Ce qui est installé
 
 - Le pilote du fork `https://github.com/swald54000/msi-ec.git`, commit figé
-  `4b72e41bdeb6d0c9949dd3b16a5dff1a6956ff97`, dans `/usr/src/msi-ec-gs76.4b72e41`,
+  `fee443a2ad81ea438af5b3397d4a88a4cdcf60b5`, dans `/usr/src/msi-ec-gs76.fee443a`,
   compilé par DKMS pour chaque noyau ayant ses en-têtes. Un noyau sans en-têtes est
   signalé « ignoré » : installez ses en-têtes puis relancez l'installateur.
 - La règle udev `/etc/udev/rules.d/99-msi-ec.rules` : au chargement du pilote, elle

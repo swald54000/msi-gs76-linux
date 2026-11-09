@@ -9,13 +9,13 @@ corr="$ici/.."
 preparer() { # $1 = membres du groupe
     faux_systeme
     mkdir -p "$RACINE/etc/udev/rules.d" "$RACINE/usr/src/msi-ec-r734.d7fbbd8" \
-        "$RACINE/usr/src/msi-ec-gs76.4b72e41" "$RACINE/usr/lib/modules/7.2.14-1-omarchy/build" \
+        "$RACINE/usr/src/msi-ec-gs76.fee443a" "$RACINE/usr/lib/modules/7.2.14-1-omarchy/build" \
         "$RACINE/var/lib/msi-gs76-linux"
     echo "regle d'origine" >"$RACINE/etc/udev/rules.d/99-msi-ec.rules"
     echo r734.d7fbbd8 >"$RACINE/var/lib/msi-gs76-linux/pilote-precedent"
     faux_cmd id 'echo 0'
     faux_cmd dkms 'echo "dkms $*" >>"$RACINE/journal"
-[ "$1" = status ] && echo "msi-ec/gs76.4b72e41, 7.2.14-1-omarchy, x86_64: installed"
+[ "$1" = status ] && echo "msi-ec/gs76.fee443a, 7.2.14-1-omarchy, x86_64: installed"
 exit 0'
     echo "$1" >"$RACINE/membres"
     faux_cmd getent 'echo "msi-ec:x:990:$(cat "$RACINE/membres")"'
@@ -37,8 +37,8 @@ preparer ""
 bash "$corr/desinstaller.sh" >"$RACINE/sortie" 2>&1; code=$?
 verifie "désinstallation : code 0" test "$code" -eq 0
 verifie "règle d'origine restaurée" grep -q "regle d'origine" "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
-verifie "module du fork retiré" grep -q 'dkms remove msi-ec/gs76.4b72e41 --all' "$RACINE/journal"
-verifie "sources du fork supprimées" test ! -d "$RACINE/usr/src/msi-ec-gs76.4b72e41"
+verifie "module du fork retiré" grep -q 'dkms remove msi-ec/gs76.fee443a --all' "$RACINE/journal"
+verifie "sources du fork supprimées" test ! -d "$RACINE/usr/src/msi-ec-gs76.fee443a"
 verifie "version précédente réinstallée" grep -q 'dkms install msi-ec/r734.d7fbbd8 -k 7.2.14-1-omarchy' "$RACINE/journal"
 verifie "groupe vide supprimé" grep -q 'groupdel msi-ec' "$RACINE/journal"
 
