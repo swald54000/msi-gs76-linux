@@ -245,7 +245,7 @@ reach your Hyprland session. Outputs are written **in the current directory**:
 | `diagnostics-energie/diag-idle.sh` | yes | screen 360 → 60 → 360 Hz | `./diag-idle.txt` |
 | `diagnostics-energie/diag-idle2.sh` | yes | forces PSR, cuts external USB, Ethernet and card reader for about 40 s | `./diag-idle2.txt` |
 | `diagnostics-energie/diag-wakeups.sh` | yes | read-only | `./diag-wakeups.txt` |
-| `diagnostics-energie/diag-services.sh` | yes | stops then restarts `voxtype` (user service), `nvidia-powerd`, `thermald` | `./diag-services.txt` |
+| `diagnostics-energie/diag-services.sh` | yes | stops then restarts an optional user service (`SERVICE_UTILISATEUR`), `nvidia-powerd`, `thermald` | `./diag-services.txt` |
 | `diagnostics-energie/diag-display.sh` | yes | KMS debug, screen off for 25 s | `./diag-display.txt` |
 | `diagnostics-energie/diag-psr.sh` | yes | forces PSR1, screen 360/60 Hz, restored | `./diag-psr.txt` |
 | `diagnostics-energie/diag-psr2.sh` | yes | KMS debug, screen 360 → 60 Hz | `./diag-psr2.txt` |

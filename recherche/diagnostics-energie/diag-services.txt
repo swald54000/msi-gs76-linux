@@ -1,5 +1,5 @@
 Référence            2.88 W  timer  355/s  Package C2  90.9%  
-- voxtype              5.98 W  timer  275/s  Package C2  88.9%  
+- service utilisateur  5.98 W  timer  275/s  Package C2  88.9%  
 - nvidia-powerd        5.40 W  timer  234/s  Package C2  91.4%  
 - thermald             2.59 W  timer  158/s  Package C2  96.6%  
-Services relancés : voxtype=active nvidia-powerd=active thermald=active
+Services relancés : service-utilisateur=active nvidia-powerd=active thermald=active

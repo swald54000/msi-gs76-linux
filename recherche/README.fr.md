@@ -258,7 +258,7 @@ et, pour les tests d'écran, pour joindre votre session Hyprland. Les sorties so
 | `diagnostics-energie/diag-idle.sh` | oui | écran 360 → 60 → 360 Hz | `./diag-idle.txt` |
 | `diagnostics-energie/diag-idle2.sh` | oui | force le PSR, coupe USB externes, Ethernet et lecteur de cartes environ 40 s | `./diag-idle2.txt` |
 | `diagnostics-energie/diag-wakeups.sh` | oui | lecture seule | `./diag-wakeups.txt` |
-| `diagnostics-energie/diag-services.sh` | oui | arrête puis relance `voxtype` (service utilisateur), `nvidia-powerd`, `thermald` | `./diag-services.txt` |
+| `diagnostics-energie/diag-services.sh` | oui | arrête puis relance un service utilisateur optionnel (`SERVICE_UTILISATEUR`), `nvidia-powerd`, `thermald` | `./diag-services.txt` |
 | `diagnostics-energie/diag-display.sh` | oui | débogage KMS, écran éteint 25 s | `./diag-display.txt` |
 | `diagnostics-energie/diag-psr.sh` | oui | force le PSR1, écran 360/60 Hz, rétabli | `./diag-psr.txt` |
 | `diagnostics-energie/diag-psr2.sh` | oui | débogage KMS, écran 360 → 60 Hz | `./diag-psr2.txt` |

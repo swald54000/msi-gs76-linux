@@ -21,10 +21,10 @@ total 556/s
 
 === Réveils par processus / thread (par seconde)
 total 377/s
-    61.5  voxtype-osd-gtk        voxtype-osd-gtk
+    61.5  [application utilisateur] [application utilisateur]
     43.1  Hyprland               Hyprland
     32.3  rcu_preempt            rcu_preempt
-    29.4  voxtype                tokio-runtime-w
+    29.4  [application utilisateur] [application utilisateur]
     15.3  kworker/u65:3-rb_allocator kworker/u65:3-rb_allocator
     14.1  kworker/u64:14-kcryptd-253:0-1 kworker/u64:14-kcryptd-253:0-1
     12.5  nvidia-powerd          nvidia-powerd
@@ -33,7 +33,7 @@ total 377/s
     10.8  [application utilisateur] [application utilisateur]
     10.7  kworker/7:2-kacpi_notify kworker/7:2-kacpi_notify
     10.7  [application utilisateur] [application utilisateur]
-     9.9  voxtype                voxtype
+     9.9  [application utilisateur] [application utilisateur]
      9.2  [application utilisateur] [application utilisateur]
      8.5  thermald               thermald
      8.0  kworker/u64:12-kcryptd-253:0-1 kworker/u64:12-kcryptd-253:0-1

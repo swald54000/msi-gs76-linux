@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
 # Outil de recherche (root). Arrêter les services les plus bavards laisse-t-il le
-# package descendre sous PC2 ? Étapes cumulatives de 20 s : référence, - voxtype
-# (service utilisateur), - nvidia-powerd, - thermald. Tous relancés à la fin.
+# package descendre sous PC2 ? Étapes cumulatives de 20 s : référence, - un service
+# utilisateur (optionnel : SERVICE_UTILISATEUR=nom.service), - nvidia-powerd, - thermald. Tous relancés à la fin.
 # Attend d'abord 20 s (ne rien toucher). Écrit ./diag-services.txt (dossier courant).
 set -uo pipefail
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,9 +16,10 @@ RAPL=/sys/class/powercap/intel-rapl:0/energy_uj
 mountpoint -q $DBG || mount -t debugfs none $DBG
 modprobe intel_pmc_core 2>/dev/null
 
+SERVICE="${SERVICE_UTILISATEUR:-}"
 usvc() { systemctl --user -M "$utilisateur@" "$@"; }
 restore() {
-  usvc start voxtype.service 2>/dev/null
+  [ -n "$SERVICE" ] && usvc start "$SERVICE" 2>/dev/null
   systemctl start nvidia-powerd.service thermald.service 2>/dev/null
 }
 trap restore EXIT
@@ -40,11 +41,13 @@ echo "Ne touche plus à rien : début dans 20 s, durée ~2 min."
 sleep 20
 {
   measure "Référence"
-  usvc stop voxtype.service;              measure "- voxtype"
+  if [ -n "$SERVICE" ]; then usvc stop "$SERVICE"; measure "- service utilisateur"; fi
   systemctl stop nvidia-powerd.service;   measure "- nvidia-powerd"
   systemctl stop thermald.service;        measure "- thermald"
 } | tee "$OUT"
 
 restore; trap - EXIT
-echo "Services relancés : voxtype=$(usvc is-active voxtype.service) nvidia-powerd=$(systemctl is-active nvidia-powerd) thermald=$(systemctl is-active thermald)" | tee -a "$OUT"
+etat_service=""
+[ -n "$SERVICE" ] && etat_service="service-utilisateur=$(usvc is-active "$SERVICE") "
+echo "Services relancés : ${etat_service}nvidia-powerd=$(systemctl is-active nvidia-powerd) thermald=$(systemctl is-active thermald)" | tee -a "$OUT"
 chown "$utilisateur:" "$OUT"
