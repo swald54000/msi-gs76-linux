@@ -8,7 +8,7 @@ a slow battery query that stutters games, and idle power draw on the internal sc
 Each fix is independent, has its own installer, checker and uninstaller, and can be
 undone.
 
-- Seven fixes in `correctifs/`, each with a `LISEZMOI.md` (in French) that explains the
+- Eight fixes in `correctifs/`, each with a `LISEZMOI.md` (in French) that explains the
   problem and exactly what is installed.
 - A research part in [`recherche/`](recherche/README.md): the tools, raw measurements
   and open questions behind the fixes. None of it is needed to use them.
@@ -28,7 +28,7 @@ starting with `17M1`, otherwise DMI `bios_version` starting with `E17M1`). They 
 anything else unless you pass `--force`. Other GS76 variants (for example the 11UG) may
 work, but nothing here proves it.
 
-## The seven fixes
+## The eight fixes
 
 | # | Folder | Problem | Measured effect | Risk |
 |---|---|---|---|---|
@@ -39,6 +39,7 @@ work, but nothing here proves it.
 | 5 | `5-ecran` | MSI's VBT disables Panel Self Refresh, and at 360 Hz the panel's PSR setup time (330 us) is too long, so the CPU never reaches deep idle states | About 2.9 W to 1.45 W at idle (package power, 60 Hz with PSR forced) | Low to medium: writes to i915 debugfs at boot; refresh rate change needs Hyprland 0.56 or later (`--force` skips that check too) |
 | 6 | `6-widget-ventilateurs` | No way to see or change the fan mode from the bar | A bar widget (Omarchy plugin, separate repository); needs fix 1 | Low: a user plugin |
 | 7 | `7-hibernation` | After resuming from hibernation, the PL2 power limit stays at the BIOS factory value (120 W): neither the kernel nor `thermald` rewrites it | `thermald` is restarted on resume; 45/64 W restored in 4 s (measured by simulating the post-hibernation state) | Low: one systemd unit |
+| 8 | `8-vbt` | MSI's VBT does not declare the internal AUO `0xE295` panel: `i915` falls back to an entry with neither PSR nor DRRS | PSR active at 60 Hz without forcing, and automatic drop to 60 Hz in 360 Hz mode when the image is still; gain in watts not measured. Makes the forced PSR of fix 5 redundant | Medium: affects the display from boot, kernel marked *tainted*; snapshot and uninstaller |
 
 Details, variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) and uninstall notes are in
 each folder's `LISEZMOI.md`.
@@ -48,7 +49,8 @@ each folder's `LISEZMOI.md`.
 - Arch Linux, `bash`, `git`, systemd
 - Omarchy: for the refresh-rate part of fix 5 and for fix 6
 - `dkms` and the kernel headers of each installed kernel (fix 1)
-- `mkinitcpio` (fix 2)
+- `mkinitcpio` (fixes 2 and 8)
+- `python3` (fix 8)
 - util-linux `column` (for `verifier-tout.sh`)
 - Fix 5's refresh-rate part also needs `hyprctl` (Hyprland 0.56 or later), `jq`, `socat` and UPower
 - Optional: Limine and Snapper (boot snapshot rollback for fix 2); `limine-mkinitcpio` is used when present

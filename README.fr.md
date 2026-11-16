@@ -8,7 +8,7 @@ ACPI du BIOS, une requête batterie lente qui fait saccader les jeux, et la cons
 au repos de l'écran interne. Chaque correctif est indépendant, a son installateur, son
 vérificateur et son désinstallateur, et peut être annulé.
 
-- Sept correctifs dans `correctifs/`, chacun avec un `LISEZMOI.md` qui explique le
+- Huit correctifs dans `correctifs/`, chacun avec un `LISEZMOI.md` qui explique le
   problème et ce qui est installé exactement.
 - Une partie recherche dans [`recherche/`](recherche/README.fr.md) : les outils, les
   mesures brutes et les questions ouvertes derrière les correctifs. Rien n'y est
@@ -29,7 +29,7 @@ machine dont le `product_name` DMI contient `GS76` **et** dont le firmware est `
 `E17M1`). Ils refusent toute autre machine sauf avec `--force`. D'autres variantes du
 GS76 (par exemple le 11UG) peuvent fonctionner, mais rien ici ne le prouve.
 
-## Les sept correctifs
+## Les huit correctifs
 
 | N° | Dossier | Problème | Effet mesuré | Risque |
 |---|---|---|---|---|
@@ -40,6 +40,7 @@ GS76 (par exemple le 11UG) peuvent fonctionner, mais rien ici ne le prouve.
 | 5 | `5-ecran` | Le VBT des MSI désactive le Panel Self Refresh, et à 360 Hz le temps d'établissement du PSR de la dalle (330 us) est trop long, donc le processeur n'atteint jamais les états de repos profonds | Environ 2,9 W puis 1,45 W au repos (puissance du processeur, 60 Hz avec PSR forcé) | Faible à moyen : écrit dans debugfs d'i915 au démarrage ; le changement de fréquence demande Hyprland 0.56 ou plus (`--force` passe aussi cette vérification) |
 | 6 | `6-widget-ventilateurs` | Aucun moyen de voir ou de changer le mode des ventilateurs depuis la barre | Un widget de barre (plugin Omarchy, dépôt séparé) ; demande le correctif 1 | Faible : un plugin utilisateur |
 | 7 | `7-hibernation` | Au retour d'hibernation, le plafond de puissance PL2 reste à la valeur d'usine du BIOS (120 W) : ni le noyau ni `thermald` ne le réécrivent | `thermald` est relancé au retour ; 45/64 W rétablis en 4 s (mesuré en simulant l'état d'après-hibernation) | Faible : une unité systemd |
+| 8 | `8-vbt` | La VBT de MSI ne déclare pas la dalle interne AUO `0xE295` : `i915` retombe sur une entrée sans PSR ni DRRS | PSR actif à 60 Hz sans forçage et retour automatique à 60 Hz en mode 360 Hz quand l'image est fixe ; gain en watts non mesuré. Rend redondant le PSR forcé du correctif 5 | Moyen : touche l'affichage dès le démarrage, noyau marqué *tainted* ; instantané et désinstallateur |
 
 Le détail, les variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) et les notes de
 désinstallation sont dans le `LISEZMOI.md` de chaque dossier.
@@ -49,7 +50,8 @@ désinstallation sont dans le `LISEZMOI.md` de chaque dossier.
 - Arch Linux, `bash`, `git`, systemd
 - Omarchy : pour la partie fréquence du correctif 5 et pour le correctif 6
 - `dkms` et les en-têtes de chaque noyau installé (correctif 1)
-- `mkinitcpio` (correctif 2)
+- `mkinitcpio` (correctifs 2 et 8)
+- `python3` (correctif 8)
 - `column` d'util-linux (pour `verifier-tout.sh`)
 - La partie fréquence du correctif 5 demande aussi `hyprctl` (Hyprland 0.56 ou plus),
   `jq`, `socat` et UPower
