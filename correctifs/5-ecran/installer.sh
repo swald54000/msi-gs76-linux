@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-# Installe le PSR forcé (--psr) et/ou la fréquence de la dalle selon l'alimentation
-# (--frequence). Sans option : les deux.
+# Installe la fréquence de la dalle selon l'alimentation. Retire aussi l'ancien service de PSR
+# forcé : le PSR est désormais assuré par la VBT corrigée du correctif 8.
 set -euo pipefail
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$ici/../../lib/commun.sh"
@@ -12,20 +12,17 @@ SCRIPT=/usr/local/bin/edp-refresh-auto
 UNITE=/etc/systemd/user/edp-refresh-auto.service
 
 forcer=()
-psr=0
-frequence=0
 for arg in "$@"; do
     case "$arg" in
         --force) forcer=(--force) ;;
-        --psr) psr=1 ;;
-        --frequence) frequence=1 ;;
+        --frequence) ;; # acceptée pour compatibilité : c'est désormais tout le correctif
+        --psr)
+            echec "l'option --psr n'existe plus : le PSR forcé est remplacé par la VBT corrigée du correctif 8 (correctifs/8-vbt)."
+            exit 1 ;;
         *) echec "option inconnue : $arg"; exit 1 ;;
     esac
 done
-if [ "$psr" -eq 0 ] && [ "$frequence" -eq 0 ]; then
-    psr=1
-    frequence=1
-fi
+frequence=1
 
 # Affiche la version (majeure.mineure) de Hyprland, ou rien si introuvable.
 version_hyprland() {
@@ -58,10 +55,6 @@ exiger_root
 verifier_materiel "${forcer[@]}" || exit 1
 
 # Vérifications préalables, avant tout changement.
-if [ "$psr" -eq 1 ] && [ ! -d "$RACINE/sys/module/i915" ]; then
-    echec "module i915 absent : le PSR forcé ne concerne que les GPU Intel i915."
-    exit 1
-fi
 if [ "$frequence" -eq 1 ]; then
     utilisateur="$(utilisateur_cible)" || exit 1
     version="$(version_hyprland)"
@@ -80,15 +73,17 @@ if [ "$frequence" -eq 1 ]; then
     fi
 fi
 
-if [ "$psr" -eq 1 ]; then
-    sauvegarder "$PSR"
-    mkdir -p "$RACINE$(dirname "$PSR")"
-    install -m644 "$ici/i915-psr-force.service" "$RACINE$PSR"
-    systemctl daemon-reload
-    if ! systemctl enable --now i915-psr-force.service; then
-        avertir "i915-psr-force n'a pas démarré (debugfs absent ou i915 sans PSR ?) ; il sera réessayé au prochain démarrage."
+# Ancien service de PSR forcé (versions précédentes de ce correctif) : retiré, le PSR vient
+# maintenant de la VBT corrigée du correctif 8. Son arrêt remet le réglage par défaut du pilote.
+if [ -e "$RACINE$PSR" ]; then
+    systemctl disable --now i915-psr-force.service || avertir "ancien service i915-psr-force déjà désactivé."
+    if a_une_sauvegarde "$PSR"; then
+        restaurer "$PSR"
+    else
+        rm -f "$RACINE$PSR"
     fi
-    ok "PSR forcé installé."
+    systemctl daemon-reload
+    info "ancien service i915-psr-force retiré : le PSR est assuré par le correctif 8 (VBT corrigée)."
 fi
 
 if [ "$frequence" -eq 1 ]; then

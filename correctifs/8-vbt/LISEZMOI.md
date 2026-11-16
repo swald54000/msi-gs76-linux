@@ -71,6 +71,6 @@ Puis redémarrer. Si l'écran interne pose problème au démarrage, choisir une 
   *tainted* (« Setting dangerous option vbt_firmware - tainting kernel »).
 - Le correctif vaut pour la VBT du BIOS `E17M1IMS.119`. Après une mise à jour du BIOS,
   désinstaller, redémarrer, puis réinstaller pour repartir de la nouvelle VBT.
-- Avec ce correctif, le PSR forcé du correctif 5 (`i915-psr-force`) devient redondant :
-  le PSR s'active seul à 60 Hz. La bascule de fréquence selon l'alimentation du même
-  correctif reste utile, puisque le PSR n'existe qu'à 60 Hz.
+- Ce correctif remplace l'ancien PSR forcé du correctif 5 (`i915-psr-force`), supprimé : le
+  PSR s'active seul à 60 Hz. La bascule de fréquence selon l'alimentation du correctif 5
+  reste utile, puisque le PSR n'existe qu'à 60 Hz.

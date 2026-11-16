@@ -36,10 +36,10 @@ work, but nothing here proves it.
 | 2 | `2-ssdt` | BIOS ACPI bugs: `\_TZ.ETMD` is never defined, so `_OSC` fails and Intel DTT settings never reach `thermald`; the I2C touchpad also shows up as a `SynPS/2` mouse | The `_OSC` errors are gone and the PS/2 alias disappears (see [research](recherche/README.md), section 2); no performance figure | **Medium: acts at boot** (add-only SSDT injected through the initramfs). If the system misbehaves, pick the Snapper snapshot "avant SSDT GS76 (acpi_override)" in the Limine boot menu |
 | 3 | `3-thermald` | After fix 2, user space starts about 0.5 s earlier and `thermald` can start before `intel_rapl_*`, so it runs without RAPL | `thermald` waits up to 5 s for RAPL; no figure. **Only useful with fix 2** | Low: one systemd drop-in |
 | 4 | `4-batterie` | The BIOS `_BST` method takes about 114 ms, so every battery read stutters (widget, power manager, games) | A 5-minute kernel cache plus a background refresh moves the cost away from games; no figure for the cache itself | Low: a tmpfiles entry, a systemd timer, original `cache_time` restored on uninstall |
-| 5 | `5-ecran` | MSI's VBT disables Panel Self Refresh, and at 360 Hz the panel's PSR setup time (330 us) is too long, so the CPU never reaches deep idle states | About 2.9 W to 1.45 W at idle (package power, 60 Hz with PSR forced) | Low to medium: writes to i915 debugfs at boot; refresh rate change needs Hyprland 0.56 or later (`--force` skips that check too) |
+| 5 | `5-ecran` | At 360 Hz the panel's PSR setup time (330 us) is too long, so the CPU never reaches deep idle states | About 2.9 W to 1.45 W at idle at 60 Hz; the panel switches to 60 Hz on battery and back to 360 Hz on AC. PSR itself comes from fix 8 | Low: one script and one user unit; needs Hyprland 0.56 or later (`--force` skips that check) |
 | 6 | `6-widget-ventilateurs` | No way to see or change the fan mode from the bar | A bar widget (Omarchy plugin, separate repository); needs fix 1 | Low: a user plugin |
 | 7 | `7-hibernation` | After resuming from hibernation, the PL2 power limit stays at the BIOS factory value (120 W): neither the kernel nor `thermald` rewrites it | `thermald` is restarted on resume; 45/64 W restored in 4 s (measured by simulating the post-hibernation state) | Low: one systemd unit |
-| 8 | `8-vbt` | MSI's VBT does not declare the internal AUO `0xE295` panel: `i915` falls back to an entry with neither PSR nor DRRS | PSR active at 60 Hz without forcing, and automatic drop to 60 Hz in 360 Hz mode when the image is still; gain in watts not measured. Makes the forced PSR of fix 5 redundant | Medium: affects the display from boot, kernel marked *tainted*; snapshot and uninstaller |
+| 8 | `8-vbt` | MSI's VBT does not declare the internal AUO `0xE295` panel: `i915` falls back to an entry with neither PSR nor DRRS | PSR active at 60 Hz without forcing, and automatic drop to 60 Hz in 360 Hz mode when the image is still; gain in watts not measured. Replaces the former forced PSR of fix 5 | Medium: affects the display from boot, kernel marked *tainted*; snapshot and uninstaller |
 
 Details, variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) and uninstall notes are in
 each folder's `LISEZMOI.md`.
@@ -47,12 +47,12 @@ each folder's `LISEZMOI.md`.
 ## Prerequisites
 
 - Arch Linux, `bash`, `git`, systemd
-- Omarchy: for the refresh-rate part of fix 5 and for fix 6
+- Omarchy: for fixes 5 and 6
 - `dkms` and the kernel headers of each installed kernel (fix 1)
 - `mkinitcpio` (fixes 2 and 8)
 - `python3` (fix 8)
 - util-linux `column` (for `verifier-tout.sh`)
-- Fix 5's refresh-rate part also needs `hyprctl` (Hyprland 0.56 or later), `jq`, `socat` and UPower
+- Fix 5 also needs `hyprctl` (Hyprland 0.56 or later), `jq`, `socat` and UPower
 - Optional: Limine and Snapper (boot snapshot rollback for fix 2); `limine-mkinitcpio` is used when present
 
 ## Recommended order

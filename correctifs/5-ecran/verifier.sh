@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-# Vérifie le PSR forcé et la fréquence selon l'alimentation. Sans privilèges.
-# Sortie : OK|ABSENT|DÉFAUT <détail> pour chaque partie ; code 0 sain, 1 rien
-# d'installé, 2 défaut.
+# Vérifie la fréquence selon l'alimentation. Sans privilèges.
+# Sortie : OK|ABSENT|DÉFAUT <détail> ; code 0 sain, 1 rien d'installé, 2 défaut.
 set -u
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$ici/../../lib/commun.sh"
@@ -16,17 +15,11 @@ lien="$RACINE/etc/systemd/user/graphical-session.target.wants/edp-refresh-auto.s
 code=0
 installes=0
 
-# PSR forcé
-if [ ! -f "$psr" ]; then
-    echo "ABSENT PSR forcé non installé"
-else
+# Ancien PSR forcé : remplacé par la VBT corrigée ; sa présence est un reste à retirer.
+if [ -f "$psr" ]; then
     installes=$((installes + 1))
-    if systemctl is-active i915-psr-force >/dev/null 2>&1; then
-        echo "OK PSR forcé : service i915-psr-force actif"
-    else
-        echo "DÉFAUT PSR forcé : service i915-psr-force inactif (voir systemctl status i915-psr-force)"
-        code=2
-    fi
+    echo "DÉFAUT ancien service i915-psr-force encore installé : relancer l'installateur (le PSR est assuré par le correctif 8)"
+    code=2
 fi
 
 # Fréquence selon l'alimentation

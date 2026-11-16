@@ -37,10 +37,10 @@ GS76 (par exemple le 11UG) peuvent fonctionner, mais rien ici ne le prouve.
 | 2 | `2-ssdt` | Bugs ACPI du BIOS : `\_TZ.ETMD` n'est jamais défini, donc `_OSC` échoue et les réglages Intel DTT n'atteignent pas `thermald` ; le pavé tactile I2C apparaît aussi comme souris `SynPS/2` | Les erreurs `_OSC` disparaissent et l'alias PS/2 aussi (voir la [recherche](recherche/README.fr.md), section 2) ; pas de chiffre de performance | **Moyen : agit au démarrage** (SSDT en ajout seul, injectée par l'initramfs). Si le système se comporte mal, choisir l'instantané Snapper « avant SSDT GS76 (acpi_override) » dans le menu de démarrage Limine |
 | 3 | `3-thermald` | Après le correctif 2, l'espace utilisateur démarre environ 0,5 s plus tôt et `thermald` peut devancer `intel_rapl_*` et travailler sans RAPL | `thermald` attend RAPL jusqu'à 5 s ; pas de chiffre. **Utile seulement avec le correctif 2** | Faible : un complément systemd |
 | 4 | `4-batterie` | La méthode `_BST` du BIOS prend environ 114 ms, donc chaque lecture de la batterie fait saccader (widget, gestionnaire d'énergie, jeux) | Un cache noyau de 5 minutes et un rafraîchissement en tâche de fond écartent ce coût des jeux ; pas de chiffre pour le cache lui-même | Faible : une entrée tmpfiles, un minuteur systemd, `cache_time` d'origine remis à la désinstallation |
-| 5 | `5-ecran` | Le VBT des MSI désactive le Panel Self Refresh, et à 360 Hz le temps d'établissement du PSR de la dalle (330 us) est trop long, donc le processeur n'atteint jamais les états de repos profonds | Environ 2,9 W puis 1,45 W au repos (puissance du processeur, 60 Hz avec PSR forcé) | Faible à moyen : écrit dans debugfs d'i915 au démarrage ; le changement de fréquence demande Hyprland 0.56 ou plus (`--force` passe aussi cette vérification) |
+| 5 | `5-ecran` | À 360 Hz le temps d'établissement du PSR de la dalle (330 us) est trop long, donc le processeur n'atteint jamais les états de repos profonds | Environ 2,9 W -> 1,45 W au repos à 60 Hz ; la dalle passe à 60 Hz sur batterie et revient à 360 Hz sur secteur. Le PSR lui-même vient du correctif 8 | Faible : un script et une unité utilisateur ; demande Hyprland 0.56 ou plus (`--force` passe cette vérification) |
 | 6 | `6-widget-ventilateurs` | Aucun moyen de voir ou de changer le mode des ventilateurs depuis la barre | Un widget de barre (plugin Omarchy, dépôt séparé) ; demande le correctif 1 | Faible : un plugin utilisateur |
 | 7 | `7-hibernation` | Au retour d'hibernation, le plafond de puissance PL2 reste à la valeur d'usine du BIOS (120 W) : ni le noyau ni `thermald` ne le réécrivent | `thermald` est relancé au retour ; 45/64 W rétablis en 4 s (mesuré en simulant l'état d'après-hibernation) | Faible : une unité systemd |
-| 8 | `8-vbt` | La VBT de MSI ne déclare pas la dalle interne AUO `0xE295` : `i915` retombe sur une entrée sans PSR ni DRRS | PSR actif à 60 Hz sans forçage et retour automatique à 60 Hz en mode 360 Hz quand l'image est fixe ; gain en watts non mesuré. Rend redondant le PSR forcé du correctif 5 | Moyen : touche l'affichage dès le démarrage, noyau marqué *tainted* ; instantané et désinstallateur |
+| 8 | `8-vbt` | La VBT de MSI ne déclare pas la dalle interne AUO `0xE295` : `i915` retombe sur une entrée sans PSR ni DRRS | PSR actif à 60 Hz sans forçage et retour automatique à 60 Hz en mode 360 Hz quand l'image est fixe ; gain en watts non mesuré. Remplace l'ancien PSR forcé du correctif 5 | Moyen : touche l'affichage dès le démarrage, noyau marqué *tainted* ; instantané et désinstallateur |
 
 Le détail, les variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) et les notes de
 désinstallation sont dans le `LISEZMOI.md` de chaque dossier.
@@ -48,12 +48,12 @@ désinstallation sont dans le `LISEZMOI.md` de chaque dossier.
 ## Prérequis
 
 - Arch Linux, `bash`, `git`, systemd
-- Omarchy : pour la partie fréquence du correctif 5 et pour le correctif 6
+- Omarchy : pour les correctifs 5 et 6
 - `dkms` et les en-têtes de chaque noyau installé (correctif 1)
 - `mkinitcpio` (correctifs 2 et 8)
 - `python3` (correctif 8)
 - `column` d'util-linux (pour `verifier-tout.sh`)
-- La partie fréquence du correctif 5 demande aussi `hyprctl` (Hyprland 0.56 ou plus),
+- Le correctif 5 demande aussi `hyprctl` (Hyprland 0.56 ou plus),
   `jq`, `socat` et UPower
 - Facultatif : Limine et Snapper (retour arrière par instantané pour le correctif 2) ;
   `limine-mkinitcpio` est utilisé s'il est présent
