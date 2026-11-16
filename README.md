@@ -8,7 +8,7 @@ a slow battery query that stutters games, and idle power draw on the internal sc
 Each fix is independent, has its own installer, checker and uninstaller, and can be
 undone.
 
-- Six fixes in `correctifs/`, each with a `LISEZMOI.md` (in French) that explains the
+- Seven fixes in `correctifs/`, each with a `LISEZMOI.md` (in French) that explains the
   problem and exactly what is installed.
 - A research part in [`recherche/`](recherche/README.md): the tools, raw measurements
   and open questions behind the fixes. None of it is needed to use them.
@@ -28,7 +28,7 @@ starting with `17M1`, otherwise DMI `bios_version` starting with `E17M1`). They 
 anything else unless you pass `--force`. Other GS76 variants (for example the 11UG) may
 work, but nothing here proves it.
 
-## The six fixes
+## The seven fixes
 
 | # | Folder | Problem | Measured effect | Risk |
 |---|---|---|---|---|
@@ -38,6 +38,7 @@ work, but nothing here proves it.
 | 4 | `4-batterie` | The BIOS `_BST` method takes about 114 ms, so every battery read stutters (widget, power manager, games) | A 5-minute kernel cache plus a background refresh moves the cost away from games; no figure for the cache itself | Low: a tmpfiles entry, a systemd timer, original `cache_time` restored on uninstall |
 | 5 | `5-ecran` | MSI's VBT disables Panel Self Refresh, and at 360 Hz the panel's PSR setup time (330 us) is too long, so the CPU never reaches deep idle states | About 2.9 W to 1.45 W at idle (package power, 60 Hz with PSR forced) | Low to medium: writes to i915 debugfs at boot; refresh rate change needs Hyprland 0.56 or later (`--force` skips that check too) |
 | 6 | `6-widget-ventilateurs` | No way to see or change the fan mode from the bar | A bar widget (Omarchy plugin, separate repository); needs fix 1 | Low: a user plugin |
+| 7 | `7-hibernation` | After resuming from hibernation, the PL2 power limit stays at the BIOS factory value (120 W): neither the kernel nor `thermald` rewrites it | `thermald` is restarted on resume; 45/64 W restored in 4 s (measured by simulating the post-hibernation state) | Low: one systemd unit |
 
 Details, variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) and uninstall notes are in
 each folder's `LISEZMOI.md`.

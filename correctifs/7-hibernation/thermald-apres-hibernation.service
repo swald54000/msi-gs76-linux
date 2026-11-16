@@ -1,0 +1,14 @@
+# Correctif 7 du dépôt msi-gs76-linux.
+# Au retour d'hibernation, le BIOS a reprogrammé ses limites de puissance d'usine (PL2 = 120 W),
+# le noyau ne les restaure pas (rapl_pm_callback ne traite que la veille) et thermald ne les
+# réécrit pas tant que son palier ne change pas. Le relancer lui fait réappliquer le palier courant.
+[Unit]
+Description=Réappliquer les limites de puissance après hibernation (relance de thermald)
+After=hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl try-restart thermald.service
+
+[Install]
+WantedBy=hibernate.target hybrid-sleep.target suspend-then-hibernate.target

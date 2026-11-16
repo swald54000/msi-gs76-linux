@@ -8,7 +8,7 @@ ACPI du BIOS, une requête batterie lente qui fait saccader les jeux, et la cons
 au repos de l'écran interne. Chaque correctif est indépendant, a son installateur, son
 vérificateur et son désinstallateur, et peut être annulé.
 
-- Six correctifs dans `correctifs/`, chacun avec un `LISEZMOI.md` qui explique le
+- Sept correctifs dans `correctifs/`, chacun avec un `LISEZMOI.md` qui explique le
   problème et ce qui est installé exactement.
 - Une partie recherche dans [`recherche/`](recherche/README.fr.md) : les outils, les
   mesures brutes et les questions ouvertes derrière les correctifs. Rien n'y est
@@ -29,7 +29,7 @@ machine dont le `product_name` DMI contient `GS76` **et** dont le firmware est `
 `E17M1`). Ils refusent toute autre machine sauf avec `--force`. D'autres variantes du
 GS76 (par exemple le 11UG) peuvent fonctionner, mais rien ici ne le prouve.
 
-## Les six correctifs
+## Les sept correctifs
 
 | N° | Dossier | Problème | Effet mesuré | Risque |
 |---|---|---|---|---|
@@ -39,6 +39,7 @@ GS76 (par exemple le 11UG) peuvent fonctionner, mais rien ici ne le prouve.
 | 4 | `4-batterie` | La méthode `_BST` du BIOS prend environ 114 ms, donc chaque lecture de la batterie fait saccader (widget, gestionnaire d'énergie, jeux) | Un cache noyau de 5 minutes et un rafraîchissement en tâche de fond écartent ce coût des jeux ; pas de chiffre pour le cache lui-même | Faible : une entrée tmpfiles, un minuteur systemd, `cache_time` d'origine remis à la désinstallation |
 | 5 | `5-ecran` | Le VBT des MSI désactive le Panel Self Refresh, et à 360 Hz le temps d'établissement du PSR de la dalle (330 us) est trop long, donc le processeur n'atteint jamais les états de repos profonds | Environ 2,9 W puis 1,45 W au repos (puissance du processeur, 60 Hz avec PSR forcé) | Faible à moyen : écrit dans debugfs d'i915 au démarrage ; le changement de fréquence demande Hyprland 0.56 ou plus (`--force` passe aussi cette vérification) |
 | 6 | `6-widget-ventilateurs` | Aucun moyen de voir ou de changer le mode des ventilateurs depuis la barre | Un widget de barre (plugin Omarchy, dépôt séparé) ; demande le correctif 1 | Faible : un plugin utilisateur |
+| 7 | `7-hibernation` | Au retour d'hibernation, le plafond de puissance PL2 reste à la valeur d'usine du BIOS (120 W) : ni le noyau ni `thermald` ne le réécrivent | `thermald` est relancé au retour ; 45/64 W rétablis en 4 s (mesuré en simulant l'état d'après-hibernation) | Faible : une unité systemd |
 
 Le détail, les variables (`SEUIL_CHARGE`, `RAFRAICHISSEMENT`, ...) et les notes de
 désinstallation sont dans le `LISEZMOI.md` de chaque dossier.
