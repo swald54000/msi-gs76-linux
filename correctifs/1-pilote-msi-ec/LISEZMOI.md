@@ -10,6 +10,25 @@ pilote d'origine, à un commit figé, et ouvre les réglages à un groupe dédi�
 Les vitesses des ventilateurs en tr/min ne viennent pas de ce pilote mais de
 `msi-wmi-platform`, livré avec le noyau (vérifié sur le noyau 7.3.4).
 
+## Changement du 17 novembre 2026 : pilote d'origine au lieu du fork
+
+Jusqu'ici ce correctif installait un fork de `msi-ec` (branche `gs76`). Il installe
+maintenant le pilote d'origine : celui-ci gère le firmware 17M1, et les tr/min viennent du
+noyau. Le fork n'est plus maintenu et son dépôt sera supprimé.
+
+Si vous aviez installé l'ancienne version :
+
+- relancez `sudo ./installer.sh` : il retire le pilote du fork et installe celui d'origine ;
+- les fichiers `cpu/fan_curve`, `gpu/fan_curve`, `fan_curve_hysteresis` et `usb_share`
+  disparaissent, ainsi que le capteur hwmon `msi_ec` ; lisez les tr/min dans le capteur
+  `msi_wmi_platform` ;
+- le widget [omarchy-msi-fans](https://github.com/swald54000/omarchy-msi-fans) doit être
+  en version 2.2.0 ou plus (`omarchy plugin update swald.fans`) : il n'affiche plus la
+  courbe des ventilateurs, mais garde les modes, les températures, les tr/min et
+  l'historique ;
+- sur un noyau où le pilote d'origine ne se compile pas (constaté sur 7.2.15-omarchy),
+  l'installateur le signale et passe au suivant.
+
 ## Ce qui est installé
 
 - Le pilote `https://github.com/MControlSuite/msi-ec.git`, commit figé

@@ -103,6 +103,12 @@ the Limine boot menu, then run its uninstaller.
   unless you use `--force`.
 - If you used an older version of the battery fix, run fix 4's installer again.
 
+**Change of 17 November 2026.** Fix 1 now installs the upstream `msi-ec` driver instead of
+a fork, which is no longer maintained and will be deleted. If you installed the earlier
+version, run its installer again and update the fan widget to 2.2.0 or later; the fan curve
+chart goes away, everything else stays. Details in
+[`correctifs/1-pilote-msi-ec/LISEZMOI.md`](correctifs/1-pilote-msi-ec/LISEZMOI.md).
+
 ## Security
 
 The installers and uninstallers run as root: **read them before running them**. The installers

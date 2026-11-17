@@ -111,6 +111,12 @@ son désinstallateur.
 - Si vous avez utilisé une ancienne version du correctif batterie, relancez l'installateur
   du correctif 4.
 
+**Changement du 17 novembre 2026.** Le correctif 1 installe maintenant le pilote `msi-ec`
+d'origine au lieu d'un fork, qui n'est plus maintenu et sera supprimé. Si vous aviez
+installé l'ancienne version, relancez son installateur et passez le widget des ventilateurs
+en 2.2.0 ou plus ; la courbe des ventilateurs disparaît, tout le reste demeure. Détails
+dans [`correctifs/1-pilote-msi-ec/LISEZMOI.md`](correctifs/1-pilote-msi-ec/LISEZMOI.md).
+
 ## Sécurité
 
 Les installateurs et désinstallateurs s'exécutent en root : **lisez-les avant de les
