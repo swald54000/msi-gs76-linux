@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-# Retire le pilote msi-ec du fork, remet le pilote précédent et la règle udev d'origine.
+# Retire le pilote msi-ec installé par le correctif, remet le pilote précédent et la règle udev d'origine.
 set -euo pipefail
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$ici/../../lib/commun.sh"
@@ -16,7 +16,7 @@ exiger_root
 precedent=""
 [ -r "$etat/pilote-precedent" ] && precedent="$(head -n 1 "$etat/pilote-precedent")"
 
-# Retire le module du fork.
+# Retire le module installé par le correctif.
 for v in $(dkms status msi-ec 2>/dev/null | sed -n 's|^msi-ec/\([^,]*\),.*|\1|p' | grep '^gs76\.' | sort -u || true); do
     dkms remove "msi-ec/$v" --all || avertir "retrait de msi-ec/$v impossible."
 done
@@ -37,7 +37,7 @@ if [ -n "$precedent" ] && [ -d "$usrsrc/msi-ec-$precedent" ]; then
         fi
     done
 else
-    info "aucune version précédente à réinstaller : le module du fork est simplement retiré."
+    info "aucune version précédente à réinstaller : le module du correctif est simplement retiré."
 fi
 
 # Règle udev : on ne restaure que s'il existe une sauvegarde (ou un marqueur d'absence).
@@ -71,4 +71,4 @@ if [ -n "$ligne" ]; then
 fi
 
 rm -f "$etat/pilote-precedent"
-ok "pilote msi-ec du fork désinstallé."
+ok "pilote msi-ec du correctif désinstallé."

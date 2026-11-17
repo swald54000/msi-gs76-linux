@@ -99,8 +99,10 @@ Comportement :
   communautaire**.
 - `realtime_fan_speed` (msi-ec) est un pourcentage, pas des tr/min — **vérifié sur la
   machine**.
-- Les ventilateurs hwmon `fan1`–`fan4` de `msi_wmi_platform` indiquent toujours 0 tr/min,
-  ce qui rend `sensors` trompeur — **vérifié sur la machine**.
+- Le hwmon de `msi_wmi_platform` donne les vraies vitesses sur le noyau 7.3.4 : 6760, 7272
+  et 6400 tr/min pour `fan1`–`fan3` sous Cooler Boost, 0 au repos — **vérifié sur la
+  machine** (17 novembre 2026). Une note antérieure disait qu'il indiquait toujours 0 :
+  c'était sur un noyau plus ancien.
 - Le troisième ventilateur tourne quand le GPU atteint environ 66 °C ; l'EC impose au
   moins 70 % au ventilateur GPU quand le CPU atteint 76 °C ; MSI Center masque la
   dernière ligne de la courbe — **source communautaire** (issue #325).
@@ -123,7 +125,7 @@ contiennent 55 61 65 71 77 87 100 (**vérifié sur la machine**). Deux lectures 
   **source communautaire**.
 
 **La question n'est pas tranchée.** Aucune expérience d'écriture n'a été faite.
-`decode.py` et le fork de msi-ec (correctif 1) utilisent le modèle à 6 seuils.
+`decode.py` et l'ancien fork de msi-ec (branche `gs76`, qui n'est plus installé par le correctif 1) utilisent le modèle à 6 seuils.
 
 ## 2. Bugs ACPI du BIOS et effet mesuré
 
@@ -251,7 +253,7 @@ et, pour les tests d'écran, pour joindre votre session Hyprland. Les sorties so
 | `ec/ec-dump.sh` | oui | EC en lecture seule ; passe `fan_mode` en auto/silent/advanced, puis le rétablit | `./dumps/*.bin` |
 | `ec/ec-dump-load.sh` | oui | EC en lecture seule ; ventilateur en auto, charge tous les cœurs 60 s, puis rétablit le mode | `./dumps/*-charge-*.bin` |
 | `ec/decode.py` | non | décode les dumps : `python3 -I ec/decode.py ec/dumps/*.bin` | écran |
-| `ec/verifier-sysfs.sh` | oui (en direct) / non (avec un dump) | compare les attributs du fork msi-ec à un dump de l'EC ; `--surveiller N` relève GPU et troisième ventilateur toutes les 10 s ; `SEUIL_CHARGE` = limite attendue (80) | écran |
+| `ec/verifier-sysfs.sh` | oui (en direct) / non (avec un dump) | compare les attributs de l'ancien fork msi-ec à un dump de l'EC ; `--surveiller N` relève GPU et troisième ventilateur toutes les 10 s ; `SEUIL_CHARGE` = limite attendue (80) | écran |
 | `super-battery/sb-ec.sh` | oui, sur secteur | EC en lecture seule ; change `shift_mode`/`super_battery`, rétablit `comfort` + inactif | `./dumps/`, `./resultats-ec.txt` |
 | `super-battery/sb-batterie.sh` | oui, sur batterie | cache batterie à 1 s pendant le test, puis rétabli ; `MESURE` = secondes par état (120) | `./resultats-batterie.txt` |
 | `diagnostics-energie/diag-root.sh` | oui | lecture seule (cache batterie brièvement à 0) | `./diag-root.txt` |

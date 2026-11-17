@@ -11,11 +11,10 @@ preparer() {
     mkdir -p "$RACINE/sys/devices/platform/msi-ec/cpu" "$RACINE/sys/class/power_supply/BAT0"
     echo Battery >"$RACINE/sys/class/power_supply/BAT0/type"
     echo 80 >"$RACINE/sys/class/power_supply/BAT0/charge_control_end_threshold"
-    : >"$RACINE/sys/devices/platform/msi-ec/cpu/fan_curve"
     : >"$RACINE/sys/devices/platform/msi-ec/fan_mode"
     faux_cmd id 'echo 1000'
     faux_cmd stat 'echo "${GROUPE_FAUX:-msi-ec}"'
-    faux_cmd modinfo 'echo "${VERSION_FAUX-gs76.fee443a}"'
+    faux_cmd modinfo 'echo "${VERSION_FAUX-gs76.c8cbd48}"'
 }
 verifier() { bash "$corr/verifier.sh" >"$RACINE/sortie" 2>&1; }
 
@@ -23,7 +22,7 @@ preparer
 verifier; code=$?
 verifie "sain : code 0" test "$code" -eq 0
 verifie "sain : sortie OK" grep -q '^OK ' "$RACINE/sortie"
-verifie "sain : version du module (modinfo)" grep -q '^OK .*gs76.fee443a' "$RACINE/sortie"
+verifie "sain : version du module (modinfo)" grep -q '^OK .*gs76.c8cbd48' "$RACINE/sortie"
 
 preparer
 mkdir -p "$RACINE/sys/module/msi_ec"
@@ -43,10 +42,10 @@ verifie "msi-ec absent : code 1" test "$code" -eq 1
 verifie "msi-ec absent : sortie ABSENT" grep -q '^ABSENT ' "$RACINE/sortie"
 
 preparer
-rm "$RACINE/sys/devices/platform/msi-ec/cpu/fan_curve"
+rm "$RACINE/sys/devices/platform/msi-ec/fan_mode"
 verifier; code=$?
-verifie "pilote d'origine : code 2" test "$code" -eq 2
-verifie "pilote d'origine : détail" grep -q "^DÉFAUT .*pilote d'origine" "$RACINE/sortie"
+verifie "firmware non reconnu : code 2" test "$code" -eq 2
+verifie "firmware non reconnu : détail" grep -q "^DÉFAUT .*sans fan_mode" "$RACINE/sortie"
 
 preparer
 GROUPE_FAUX=root verifier; code=$?

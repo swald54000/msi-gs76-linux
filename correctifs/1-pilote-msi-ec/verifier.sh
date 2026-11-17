@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-# Vérifie le pilote msi-ec corrigé. Sans privilèges.
+# Vérifie le pilote msi-ec et ses réglages. Sans privilèges.
 # Sortie : OK|ABSENT|DÉFAUT <détail> ; code 0 sain, 1 absent, 2 défaut.
 set -u
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,8 +20,8 @@ if [ ! -d "$pilote" ]; then
     echo "ABSENT pilote msi-ec non chargé"
     exit 1
 fi
-if [ ! -e "$pilote/cpu/fan_curve" ]; then
-    echo "DÉFAUT pilote d'origine chargé (cpu/fan_curve absent) : installer le correctif 1"
+if [ ! -e "$pilote/fan_mode" ]; then
+    echo "DÉFAUT pilote msi-ec chargé sans fan_mode : ce firmware n'est pas reconnu par le pilote"
     exit 2
 fi
 groupe="$(stat -c %G "$pilote/fan_mode" 2>/dev/null || true)"
@@ -37,5 +37,5 @@ if [ "$seuil" != "$seuil_attendu" ]; then
 fi
 version_module="$(cat "$RACINE/sys/module/msi_ec/version" 2>/dev/null || true)"
 [ -n "$version_module" ] || version_module="$(modinfo -F version msi_ec 2>/dev/null || true)"
-echo "OK msi-ec du fork actif (module version ${version_module:-inconnue}), groupe msi-ec, seuil de charge $seuil %"
+echo "OK msi-ec actif (module version ${version_module:-inconnue}), groupe msi-ec, seuil de charge $seuil %"
 exit 0

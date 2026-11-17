@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-# Installe le pilote msi-ec corrigé (fork) via DKMS, avec la règle udev et le groupe msi-ec.
+# Installe le pilote msi-ec d'origine, à un commit figé, via DKMS, avec la règle udev et le
+# groupe msi-ec.
 # Variables : MSI_EC_DEPOT, MSI_EC_REF, SEUIL_CHARGE (50 à 100, défaut 80), MSI_EC_NOYAUX.
 set -eEuo pipefail
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$ici/../../lib/commun.sh"
 . "$ici/regle-udev.sh"
 
-MSI_EC_DEPOT="${MSI_EC_DEPOT:-https://github.com/swald54000/msi-ec.git}"
-MSI_EC_REF="${MSI_EC_REF:-fee443a2ad81ea438af5b3397d4a88a4cdcf60b5}"
+MSI_EC_DEPOT="${MSI_EC_DEPOT:-https://github.com/MControlSuite/msi-ec.git}"
+MSI_EC_REF="${MSI_EC_REF:-c8cbd48ed01f5c4fa7e34ff622a66f5a5380c705}"
 GROUPE=msi-ec
 RACINE="${RACINE:-}"
 
@@ -47,7 +48,7 @@ etat="$RACINE/var/lib/msi-gs76-linux"
 temp="$(mktemp -d)"
 trap 'rm -rf "$temp"' EXIT
 
-# Récupération du fork (clone superficiel au commit figé), avant de toucher au système.
+# Récupération du pilote (clone superficiel au commit figé), avant de toucher au système.
 info "récupération de $MSI_EC_DEPOT ($MSI_EC_REF)"
 git -C "$temp" init -q src
 git -C "$temp/src" fetch -q --depth 1 "$MSI_EC_DEPOT" "$MSI_EC_REF"
@@ -96,13 +97,17 @@ fi
 installes=0
 for k in "${noyaux[@]}"; do
     if [ -d "$RACINE/usr/lib/modules/$k/build" ]; then
-        dkms install "msi-ec/$version" -k "$k" --force
-        installes=$((installes + 1))
+        # Un noyau sur lequel le pilote ne se compile pas n'empêche pas les autres.
+        if dkms install "msi-ec/$version" -k "$k" --force; then
+            installes=$((installes + 1))
+        else
+            avertir "noyau $k ignoré : le pilote ne s'y compile pas."
+        fi
     else
         avertir "noyau $k ignoré : en-têtes absents (installez ses en-têtes puis relancez)."
     fi
 done
-[ "$installes" -gt 0 ] || { echec "aucun noyau avec en-têtes : rien n'a été installé."; false; }
+[ "$installes" -gt 0 ] || { echec "le pilote n'a pu être installé pour aucun noyau."; false; }
 
 # Groupe et utilisateur.
 getent group "$GROUPE" >/dev/null || groupadd "$GROUPE"
@@ -117,7 +122,7 @@ modprobe msi_ec
 udevadm trigger --action=bind --subsystem-match=platform --attr-match=driver=msi-ec
 udevadm settle
 
-[ -e "$RACINE/sys/devices/platform/msi-ec/cpu/fan_curve" ] || { echec "le pilote du fork n'est pas actif (cpu/fan_curve absent)."; false; }
+[ -e "$RACINE/sys/devices/platform/msi-ec/fan_mode" ] || { echec "le pilote msi-ec n'est pas actif (fan_mode absent)."; false; }
 
 trap - ERR INT TERM
 ok "msi-ec $version installé ($installes noyau(x)), seuil de charge $seuil %"

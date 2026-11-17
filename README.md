@@ -32,7 +32,7 @@ work, but nothing here proves it.
 
 | # | Folder | Problem | Measured effect | Risk |
 |---|---|---|---|---|
-| 1 | `1-pilote-msi-ec` | The stock `msi-ec` driver has no fan curve (`cpu/fan_curve`) for the GS76, and fan mode and charge limit can only be set by root | Installs a fixed driver through DKMS and opens the settings to the `msi-ec` group; no figure | Low: replaces the DKMS `msi-ec` module; the previous one is restored on uninstall only if its sources are still in `/usr/src` |
+| 1 | `1-pilote-msi-ec` | Fan mode, shift mode, Cooler Boost and the charge limit can only be set by root, and the `msi-ec` driver shipped with a kernel can lag behind the project | Installs the upstream `msi-ec` driver at a pinned commit through DKMS and opens the settings to the `msi-ec` group; no figure | Low: replaces the DKMS `msi-ec` module; the previous one is restored on uninstall only if its sources are still in `/usr/src` |
 | 2 | `2-ssdt` | BIOS ACPI bugs: `\_TZ.ETMD` is never defined, so `_OSC` fails and Intel DTT settings never reach `thermald`; the I2C touchpad also shows up as a `SynPS/2` mouse | The `_OSC` errors are gone and the PS/2 alias disappears (see [research](recherche/README.md), section 2); no performance figure | **Medium: acts at boot** (add-only SSDT injected through the initramfs). If the system misbehaves, pick the Snapper snapshot "avant SSDT GS76 (acpi_override)" in the Limine boot menu |
 | 3 | `3-thermald` | After fix 2, user space starts about 0.5 s earlier and `thermald` can start before `intel_rapl_*`, so it runs without RAPL | `thermald` waits up to 5 s for RAPL; no figure. **Only useful with fix 2** | Low: one systemd drop-in |
 | 4 | `4-batterie` | The BIOS `_BST` method takes about 114 ms, so every battery read stutters (widget, power manager, games) | A 5-minute kernel cache plus a background refresh moves the cost away from games; no figure for the cache itself | Low: a tmpfiles entry, a systemd timer, original `cache_time` restored on uninstall |
@@ -106,7 +106,7 @@ the Limine boot menu, then run its uninstaller.
 ## Security
 
 The installers and uninstallers run as root: **read them before running them**. The installers
-download only the msi-ec fork, at a pinned commit (fix 1); the widget comes through
+download only the upstream msi-ec driver, at a pinned commit (fix 1); the widget comes through
 `omarchy plugin add`. The research tools are
 different: most need root and were written for one machine; read
 [`recherche/README.md`](recherche/README.md) before running any.
@@ -120,8 +120,7 @@ Runs every test against a temporary root with fake system tools; nothing touches
 
 ## Related projects
 
-- [msi-ec fork](https://github.com/swald54000/msi-ec) (branch `gs76`): the driver
-  installed by fix 1
+- [msi-ec](https://github.com/MControlSuite/msi-ec): the driver installed by fix 1
 - [omarchy-msi-fans](https://github.com/swald54000/omarchy-msi-fans): the widget of fix 6
 - [KLC Light](https://github.com/swald54000/klc-light): per-key keyboard lighting editor
   for the same machine

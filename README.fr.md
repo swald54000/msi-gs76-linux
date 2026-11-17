@@ -33,7 +33,7 @@ GS76 (par exemple le 11UG) peuvent fonctionner, mais rien ici ne le prouve.
 
 | N° | Dossier | Problème | Effet mesuré | Risque |
 |---|---|---|---|---|
-| 1 | `1-pilote-msi-ec` | Le pilote `msi-ec` d'origine n'a pas de courbe de ventilateur (`cpu/fan_curve`) pour le GS76, et le mode des ventilateurs et le seuil de charge ne sont réglables que par root | Installe un pilote corrigé via DKMS et ouvre les réglages au groupe `msi-ec` ; pas de chiffre | Faible : remplace le module DKMS `msi-ec` ; l'ancien n'est remis à la désinstallation que si ses sources sont encore dans `/usr/src` |
+| 1 | `1-pilote-msi-ec` | Le mode des ventilateurs, le mode de performance, le Cooler Boost et le seuil de charge ne sont réglables que par root, et le pilote `msi-ec` livré avec un noyau peut être en retard sur le projet | Installe le pilote `msi-ec` d'origine, à un commit figé, via DKMS et ouvre les réglages au groupe `msi-ec` ; pas de chiffre | Faible : remplace le module DKMS `msi-ec` ; l'ancien n'est remis à la désinstallation que si ses sources sont encore dans `/usr/src` |
 | 2 | `2-ssdt` | Bugs ACPI du BIOS : `\_TZ.ETMD` n'est jamais défini, donc `_OSC` échoue et les réglages Intel DTT n'atteignent pas `thermald` ; le pavé tactile I2C apparaît aussi comme souris `SynPS/2` | Les erreurs `_OSC` disparaissent et l'alias PS/2 aussi (voir la [recherche](recherche/README.fr.md), section 2) ; pas de chiffre de performance | **Moyen : agit au démarrage** (SSDT en ajout seul, injectée par l'initramfs). Si le système se comporte mal, choisir l'instantané Snapper « avant SSDT GS76 (acpi_override) » dans le menu de démarrage Limine |
 | 3 | `3-thermald` | Après le correctif 2, l'espace utilisateur démarre environ 0,5 s plus tôt et `thermald` peut devancer `intel_rapl_*` et travailler sans RAPL | `thermald` attend RAPL jusqu'à 5 s ; pas de chiffre. **Utile seulement avec le correctif 2** | Faible : un complément systemd |
 | 4 | `4-batterie` | La méthode `_BST` du BIOS prend environ 114 ms, donc chaque lecture de la batterie fait saccader (widget, gestionnaire d'énergie, jeux) | Un cache noyau de 5 minutes et un rafraîchissement en tâche de fond écartent ce coût des jeux ; pas de chiffre pour le cache lui-même | Faible : une entrée tmpfiles, un minuteur systemd, `cache_time` d'origine remis à la désinstallation |
@@ -114,7 +114,7 @@ son désinstallateur.
 ## Sécurité
 
 Les installateurs et désinstallateurs s'exécutent en root : **lisez-les avant de les
-lancer**. Les installateurs ne téléchargent que le fork de msi-ec, à un commit figé (correctif 1) ;
+lancer**. Les installateurs ne téléchargent que le pilote msi-ec d'origine, à un commit figé (correctif 1) ;
 le widget vient de `omarchy plugin add`.
 Les outils de recherche sont différents : la plupart demandent root et ont été écrits
 pour une seule machine ; lisez [`recherche/README.fr.md`](recherche/README.fr.md) avant
@@ -129,8 +129,7 @@ touche `/usr`, `/etc`, `/sys` ni `/var`.
 
 ## Projets liés
 
-- [Fork de msi-ec](https://github.com/swald54000/msi-ec) (branche `gs76`) : le pilote
-  installé par le correctif 1
+- [msi-ec](https://github.com/MControlSuite/msi-ec) : le pilote installé par le correctif 1
 - [omarchy-msi-fans](https://github.com/swald54000/omarchy-msi-fans) : le widget du
   correctif 6
 - [KLC Light](https://github.com/swald54000/klc-light) : éditeur d'éclairage du clavier

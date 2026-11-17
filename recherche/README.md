@@ -92,8 +92,9 @@ Behaviour:
   64 °C — **verified on this machine**. Issue #848 reports that auto mode ignores or caps
   the curve and advanced mode applies it — **community source**.
 - `realtime_fan_speed` (msi-ec) is a percentage, not rpm — **verified on this machine**.
-- The `msi_wmi_platform` hwmon fans `fan1`–`fan4` always read 0 rpm, which makes
-  `sensors` misleading — **verified on this machine**.
+- The `msi_wmi_platform` hwmon reports the real fan speeds on kernel 7.3.4: 6760, 7272 and
+  6400 rpm for `fan1`–`fan3` under Cooler Boost, 0 at rest — **verified on this machine**
+  (2026-11-17). An earlier note here said it always read 0; that was on an older kernel.
 - The third fan spins when the GPU reaches about 66 °C; the EC forces the GPU fan to at
   least 70 % when the CPU reaches 76 °C; MSI Center hides the last row of the curve —
   **community source** (issue #325).
@@ -115,7 +116,7 @@ The seven bytes `0x6A`–`0x70` hold 52 60 65 70 82 88 100 and `0x82`–`0x88` h
   **community source**.
 
 **This is not settled.** No write experiment has been made. `decode.py` and the msi-ec
-fork (correctif 1) use the 6-threshold model.
+former msi-ec fork (branch `gs76`, no longer installed by fix 1) use the 6-threshold model.
 
 ## 2. BIOS ACPI bugs and their measured effect
 
@@ -238,7 +239,7 @@ reach your Hyprland session. Outputs are written **in the current directory**:
 | `ec/ec-dump.sh` | yes | EC read-only; switches `fan_mode` auto/silent/advanced, then restores it | `./dumps/*.bin` |
 | `ec/ec-dump-load.sh` | yes | EC read-only; fan in auto, loads all cores 60 s, then restores the mode | `./dumps/*-charge-*.bin` |
 | `ec/decode.py` | no | decodes dumps: `python3 -I ec/decode.py ec/dumps/*.bin` | screen |
-| `ec/verifier-sysfs.sh` | yes (live) / no (with a dump) | compares the msi-ec fork attributes with an EC dump; `--surveiller N` samples GPU and third fan every 10 s; `SEUIL_CHARGE` = expected limit (80) | screen |
+| `ec/verifier-sysfs.sh` | yes (live) / no (with a dump) | compares the attributes of the former msi-ec fork with an EC dump; `--surveiller N` samples GPU and third fan every 10 s; `SEUIL_CHARGE` = expected limit (80) | screen |
 | `super-battery/sb-ec.sh` | yes, on AC | EC read-only; switches `shift_mode`/`super_battery`, restores `comfort` + off | `./dumps/`, `./resultats-ec.txt` |
 | `super-battery/sb-batterie.sh` | yes, on battery | battery cache at 1 s during the test, then restored; `MESURE` = seconds per state (120) | `./resultats-batterie.txt` |
 | `diagnostics-energie/diag-root.sh` | yes | read-only (battery cache briefly at 0) | `./diag-root.txt` |
