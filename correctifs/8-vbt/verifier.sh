@@ -57,15 +57,20 @@ else
     preuve="fichiers seulement"
 fi
 
-# Type de DRRS retenu par i915 : lisible seulement pour root.
+# Type de DRRS retenu par i915 : lisible seulement pour root. « seamless » veut dire que l'ancienne
+# VBT corrigée (PSR et DRRS) est encore en service : celle-ci laisse le DRRS éteint.
 for t in "$RACINE"/sys/kernel/debug/dri/*/eDP-*/i915_drrs_type; do
     [ -r "$t" ] || continue
-    if ! grep -q seamless "$t"; then
-        echo "DÉFAUT VBT chargée mais DRRS « $(sed 's/.*: //' "$t") » au lieu de « seamless »"
+    if grep -q seamless "$t"; then
+        case "$cause" in
+            *redémarrer) quoi="$cause" ;;
+            *) quoi="relancer l'installateur, puis redémarrer" ;;
+        esac
+        echo "DÉFAUT DRRS « seamless » encore en service (ancienne VBT, source de flashs avec un écran externe) : $quoi"
         exit 2
     fi
-    preuve="$preuve, DRRS seamless"
+    preuve="$preuve, sans DRRS"
 done
 
-echo "OK VBT corrigée chargée (preuves : $preuve) : PSR et DRRS reconnus pour la dalle"
+echo "OK VBT corrigée chargée (preuves : $preuve) : PSR reconnu pour la dalle, DRRS laissé éteint"
 exit 0

@@ -31,13 +31,19 @@ tmp="$(mktemp -d)"; _DOSSIERS_TEMP+=("$tmp")
 fabrique_vbt "$tmp/origine.bin" bffc bffc
 python3 -I "$corr/vbt-corriger.py" "$tmp/origine.bin" "$tmp/corrigee.bin" >/dev/null 2>&1; code=$?
 verifie "générateur : code 0 sur une VBT valide" test "$code" -eq 0
-verifie "générateur : trois octets changés" test "$(cmp -l "$tmp/origine.bin" "$tmp/corrigee.bin" 2>/dev/null | wc -l)" -eq 3
+verifie "générateur : deux octets changés (bit PSR et somme de contrôle)" test "$(cmp -l "$tmp/origine.bin" "$tmp/corrigee.bin" 2>/dev/null | wc -l)" -eq 2
+verifie "générateur : PSR à 1, DRRS laissé à 0 pour l'entrée 0" python3 -I -c "import struct,sys; d=open('$tmp/corrigee.bin','rb').read(); i=d.index(bytes([44]),70); p,r=struct.unpack_from('<HH',d,i+3+24); sys.exit(0 if (p&1, r&1)==(1,0) else 1)"
 verifie "générateur : somme de contrôle nulle" python3 -I -c "import sys; sys.exit(sum(open('$tmp/corrigee.bin','rb').read()) % 256)"
 verifie "générateur : sortie tronquée à vbt_size" test "$(stat -c %s "$tmp/corrigee.bin")" -eq "$(( $(stat -c %s "$tmp/origine.bin") - 96 ))"
 verifie "générateur : --verifier refuse la VBT d'origine" bash -c "! python3 -I '$corr/vbt-corriger.py' --verifier '$tmp/origine.bin' 2>/dev/null"
 verifie "générateur : --verifier accepte la VBT corrigée" python3 -I "$corr/vbt-corriger.py" --verifier "$tmp/corrigee.bin"
 python3 -I "$corr/vbt-corriger.py" "$tmp/corrigee.bin" "$tmp/deux.bin" >/dev/null 2>&1
 verifie "générateur : idempotent" cmp -s "$tmp/corrigee.bin" "$tmp/deux.bin"
+# VBT en service corrigée par l'ancienne version (PSR et DRRS à 1) : DRRS remis à 0, même résultat.
+fabrique_vbt "$tmp/ancienne.bin" bffd bffd
+verifie "générateur : --verifier refuse l'ancienne VBT (DRRS à 1)" bash -c "! python3 -I '$corr/vbt-corriger.py' --verifier '$tmp/ancienne.bin' 2>/dev/null"
+python3 -I "$corr/vbt-corriger.py" "$tmp/ancienne.bin" "$tmp/depuis-ancienne.bin" >/dev/null 2>&1
+verifie "générateur : depuis l'ancienne VBT, même résultat que depuis l'origine" cmp -s "$tmp/corrigee.bin" "$tmp/depuis-ancienne.bin"
 fabrique_vbt "$tmp/vieille.bin" bffc bffc 227
 verifie "générateur : refuse une BDB antérieure à 228" bash -c "! python3 -I '$corr/vbt-corriger.py' '$tmp/vieille.bin' '$tmp/x.bin' 2>/dev/null"
 printf 'pas une vbt' >"$tmp/faux.bin"
@@ -110,12 +116,27 @@ verifier; code=$?
 verifie "chargement en échec : code 2" test "$code" -eq 2
 verifie "chargement en échec : DÉFAUT" grep -q '^DÉFAUT .*VBT' "$RACINE/sortie"
 
+# DRRS « seamless » encore en service : l'ancienne VBT (PSR et DRRS) est chargée.
+mkdir -p "$RACINE/sys/kernel/debug/dri/0000:00:02.0/eDP-1"
+echo "DRRS type: seamless" >"$RACINE/sys/kernel/debug/dri/0000:00:02.0/eDP-1/i915_drrs_type"
+echo "kernel: Setting dangerous option vbt_firmware - tainting kernel" >"$RACINE/journal-noyau"
+verifier; code=$?
+verifie "DRRS seamless en service : code 2" test "$code" -eq 2
+verifie "DRRS seamless en service : dit de redémarrer" grep -q '^DÉFAUT .*DRRS.*redémarrer' "$RACINE/sortie"
+echo "DRRS type: static" >"$RACINE/sys/kernel/debug/dri/0000:00:02.0/eDP-1/i915_drrs_type"
+verifier; code=$?
+verifie "DRRS non seamless : code 0" test "$code" -eq 0
+verifie "DRRS non seamless : preuve citée" grep -q '^OK .*sans DRRS' "$RACINE/sortie"
+
 # Fichiers altérés.
 preparer; installer
 echo "options i915 vbt_firmware=autre.bin" >"$RACINE$MODPROBE"
 verifier; code=$?
 verifie "option modifiée : code 2" test "$code" -eq 2
 preparer; installer
+fabrique_vbt "$RACINE$FW" bffd bffd
+verifier; code=$?
+verifie "VBT installée avec DRRS (ancienne version) : code 2" test "$code" -eq 2
 fabrique_vbt "$RACINE$FW" bffc bffc
 verifier; code=$?
 verifie "VBT installée non corrigée : code 2" test "$code" -eq 2

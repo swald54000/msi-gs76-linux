@@ -3,8 +3,14 @@
 
 La VBT de MSI ne déclare pas cette dalle : son identifiant n'est dans aucune des 16 entrées,
 i915 retombe donc sur l'entrée 0 (fallback_get_panel_type), dont les bits PSR et DRRS du bloc 44
-(struct bdb_lfp_power) sont à 0. Ce script met ces deux bits à 1 pour l'entrée 0, rien d'autre,
-et compense l'octet de somme de contrôle de l'en-tête (somme de tous les octets = 0 modulo 256).
+(struct bdb_lfp_power) sont à 0. Ce script met le bit PSR à 1 pour l'entrée 0 et y laisse le bit
+DRRS à 0, rien d'autre, puis compense l'octet de somme de contrôle de l'en-tête (somme de tous les
+octets = 0 modulo 256).
+
+Le DRRS reste éteint : avec un écran externe, chaque mise à jour de celui-ci fait basculer la dalle
+entre 60 et 360 Hz, et chaque bascule est un flash visible (constaté le 26 novembre 2026). Sur
+batterie la dalle est déjà à 60 Hz : le DRRS n'y apporte rien. Une VBT corrigée par l'ancienne
+version (PSR et DRRS à 1) redonne le même résultat : son bit DRRS est remis à 0.
 Structures : drivers/gpu/drm/i915/display/intel_vbt_defs.h (noyau 7.3).
 
 usage : vbt-corriger.py <vbt d'origine> <vbt corrigée>
@@ -59,7 +65,7 @@ def corriger(d):
     taille, bloc = analyser(d)
     psr, drrs = bits(d, bloc)
     struct.pack_into('<H', d, bloc + DECALAGE_PSR, psr | 1 << PANNEAU)
-    struct.pack_into('<H', d, bloc + DECALAGE_DRRS, drrs | 1 << PANNEAU)
+    struct.pack_into('<H', d, bloc + DECALAGE_DRRS, drrs & ~(1 << PANNEAU))
     d = d[:taille]
     d[26] = (d[26] - sum(d)) % 256          # vbt_header.vbt_checksum
     return bytes(d), (psr, drrs), bits(d, bloc)
@@ -71,7 +77,7 @@ def main(argv):
             d = open(argv[2], 'rb').read()
             _, bloc = analyser(d)
             psr, drrs = bits(d, bloc)
-            if psr >> PANNEAU & 1 and drrs >> PANNEAU & 1:
+            if psr >> PANNEAU & 1 and not drrs >> PANNEAU & 1:
                 return 0
             print('VBT non corrigée : psr=%#06x drrs=%#06x' % (psr, drrs), file=sys.stderr)
             return 1

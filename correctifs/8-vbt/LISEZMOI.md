@@ -19,8 +19,9 @@ les 16 entrées : seuls ces deux bits distinguent l'entrée 0 des entrées ordin
 ## Ce qui est installé
 
 - `/usr/lib/firmware/updates/gs76/vbt-auo-e295.bin` : la VBT **de la machine**, lue dans
-  `debugfs`, où `vbt-corriger.py` met à 1 les bits PSR et DRRS de l'entrée 0 et compense
-  l'octet de somme de contrôle. Trois octets changent. Aucune VBT n'est distribuée ici.
+  `debugfs`, où `vbt-corriger.py` met à 1 le bit PSR de l'entrée 0, y laisse le bit DRRS à 0
+  et compense l'octet de somme de contrôle. Deux octets changent. Aucune VBT n'est distribuée
+  ici.
 - `/etc/modprobe.d/gs76-vbt.conf` : `options i915 vbt_firmware=gs76/vbt-auo-e295.bin`.
 - `/etc/mkinitcpio.conf.d/zz-gs76-vbt.conf` : ajoute le fichier à l'initramfs, d'où
   `i915` peut être chargé. Les initramfs sont reconstruits.
@@ -35,15 +36,24 @@ dans `/var/lib/msi-gs76-linux/sauvegardes/`. **Prend effet au prochain démarrag
 | 60 Hz | PSR « disabled by flag » | PSR actif sans forçage, en veille sur 39 relevés sur 60 |
 | 360 Hz | DRRS « static », inactif | DRRS « seamless », en basse fréquence sur 58 relevés sur 60 |
 
-Pas de scintillement constaté. À 360 Hz le PSR reste impossible : le temps
+Pas de scintillement constaté, écran externe débranché. À 360 Hz le PSR reste impossible : le temps
 d'établissement de la dalle (330 us) ne tient pas dans l'intervalle de retour vertical.
 
 Le gain en watts n'est **pas** mesuré : la puissance du processeur est la même dans les
 deux cas (ce compteur ne voit pas la dalle) et une machine virtuelle tournait pendant
 l'essai. Il reste à mesurer la décharge de la batterie, machine au repos.
 
-Le PSR et le DRRS ne jouent que si rien ne redessine l'écran interne : une fenêtre
-animée, ou une icône animée dans la barre, les empêche en permanence.
+Le PSR ne joue que si rien ne redessine l'écran interne : une fenêtre
+animée, ou une icône animée dans la barre, l'empêche en permanence.
+
+## DRRS retiré (26 novembre 2026)
+
+La première version mettait aussi à 1 le bit DRRS. Avec un écran externe branché, chaque mise à
+jour de celui-ci (défilement) fait basculer la dalle interne entre 60 et 360 Hz, relevé dans
+`crtc-0/i915_drrs_status` : chaque bascule est un flash sur l'écran interne. Or le DRRS ne sert
+qu'à 360 Hz, donc sur secteur : sur batterie, la bascule de fréquence du correctif 5 met déjà la
+dalle à 60 Hz. Le bit DRRS est donc laissé à 0 ; une VBT déjà corrigée par la première version
+est ramenée au même résultat en relançant l'installateur.
 
 ## Utilisation
 
@@ -56,7 +66,7 @@ sauf avec `--force`, qui contourne aussi la vérification du matériel. Il deman
 le même fichier.
 
 `verifier.sh` s'appuie sur le journal du noyau ; lancé en root, il contrôle aussi que le
-DRRS retenu est « seamless ».
+DRRS n'est pas « seamless » (signe que la première version est encore chargée).
 
 ## Désinstallation
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-# Installe une VBT corrigée pour la dalle AUO 0xE295 : PSR et DRRS reconnus par i915.
+# Installe une VBT corrigée pour la dalle AUO 0xE295 : PSR reconnu par i915, DRRS laissé éteint.
 # La VBT est générée à partir de celle de la machine ; prend effet au prochain démarrage.
 set -euo pipefail
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
