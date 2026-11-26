@@ -25,6 +25,14 @@ done
 
 attendu="$(awk '{print $NF}' "$tmpf")"
 actuel="$(cat "$param" 2>/dev/null || true)"
+# battery-refresh met le cache à 1 ms pendant ~120 ms à chaque passage : un écart
+# ne compte que s'il persiste après quelques relectures.
+essais=3
+while [ "$actuel" != "$attendu" ] && [ "$essais" -gt 0 ]; do
+    sleep 0.3
+    actuel="$(cat "$param" 2>/dev/null || true)"
+    essais=$((essais - 1))
+done
 if [ "$actuel" != "$attendu" ]; then
     echo "DÉFAUT cache_time vaut « ${actuel:-illisible} » au lieu de $attendu ms"
     exit 2

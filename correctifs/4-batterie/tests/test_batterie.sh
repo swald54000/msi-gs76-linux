@@ -64,6 +64,34 @@ verifier; code=$?
 verifie "cache_time différent : code 2" test "$code" -eq 2
 verifie "cache_time différent : DÉFAUT" grep -q '^DÉFAUT ' "$RACINE/sortie"
 
+# Lecture pendant battery-refresh : le cache vaut 1 ms un court instant, puis la
+# cible revient. Le faux sleep joue la fin du rafraîchissement (et évite d'attendre).
+echo 1 >"$RACINE$CACHE"
+faux_cmd sleep 'echo "sleep $*" >>"$RACINE/attentes"
+echo 300000 >"$RACINE/sys/module/battery/parameters/cache_time"'
+verifier; code=$?
+verifie "cache à 1 pendant le rafraîchissement : code 0" test "$code" -eq 0
+verifie "cache à 1 pendant le rafraîchissement : OK" grep -q '^OK ' "$RACINE/sortie"
+verifie "cache à 1 pendant le rafraîchissement : une seule attente" test "$(wc -l <"$RACINE/attentes")" -eq 1
+
+# Cache figé à 1 : l'écart persiste après les relectures, c'est un vrai défaut.
+echo 1 >"$RACINE$CACHE"
+: >"$RACINE/attentes"
+faux_cmd sleep 'echo "sleep $*" >>"$RACINE/attentes"'
+verifier; code=$?
+verifie "cache figé à 1 : code 2" test "$code" -eq 2
+verifie "cache figé à 1 : DÉFAUT avec la valeur" grep -q '^DÉFAUT cache_time vaut « 1 »' "$RACINE/sortie"
+verifie "cache figé à 1 : relectures bornées" test "$(wc -l <"$RACINE/attentes")" -eq 3
+rm -f "$FAUX_BIN/sleep"
+
+# Valeur déjà correcte : aucune attente.
+echo 300000 >"$RACINE$CACHE"
+: >"$RACINE/attentes"
+faux_cmd sleep 'echo "sleep $*" >>"$RACINE/attentes"'
+verifier; code=$?
+verifie "cache correct : code 0 sans attente" test "$code" -eq 0 -a ! -s "$RACINE/attentes"
+rm -f "$FAUX_BIN/sleep"
+
 # Variables.
 preparer
 RAFRAICHISSEMENT=60 CACHE_BATTERIE_MS=120000 installer; code=$?
