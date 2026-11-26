@@ -59,6 +59,7 @@ verifie "succès : commit figé demandé à git" grep -q 'c8cbd48ed01f5c4fa7e34f
 verifie "succès : règle udev écrite" grep -q 'chgrp msi-ec' "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
 verifie "succès : seuil 80 par défaut" grep -q 'echo 80 ' "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
 verifie "succès : règle sans RACINE" bash -c '! grep -q "$1" "$2"' _ "$RACINE" "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
+verifie "succès : chargement au démarrage (modules-load.d)" grep -qx 'msi_ec' "$RACINE/etc/modules-load.d/msi-ec.conf"
 verifie "succès : groupadd msi-ec" grep -q '^groupadd msi-ec' "$RACINE/journal"
 verifie "succès : usermod -aG msi-ec alice" grep -q '^usermod -aG msi-ec alice' "$RACINE/journal"
 verifie "succès : demande de se reconnecter" grep -qi 'reconnect' "$RACINE/sortie"

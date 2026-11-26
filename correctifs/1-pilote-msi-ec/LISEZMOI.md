@@ -36,6 +36,9 @@ Si vous aviez installé l'ancienne version :
   compilé par DKMS pour chaque noyau ayant ses en-têtes. Un noyau sans en-têtes, ou sur
   lequel le pilote ne se compile pas, est signalé « ignoré » : l'installation continue
   pour les autres.
+- Le fichier `/etc/modules-load.d/msi-ec.conf` (une ligne `msi_ec`) : le pilote d'origine
+  ne déclare aucun alias matériel, rien ne le charge seul au démarrage. Sans ce fichier, le
+  pilote disparaît au redémarrage suivant, et le seuil de charge avec lui.
 - La règle udev `/etc/udev/rules.d/99-msi-ec.rules` : au chargement du pilote, elle
   donne `shift_mode`, `fan_mode` et `cooler_boost` au groupe `msi-ec` (écriture
   autorisée) et fixe le seuil de charge de la batterie.
@@ -75,7 +78,7 @@ D'ici là, les réglages restent refusés.
     sudo ./desinstaller.sh
 
 Retire le pilote installé par le correctif, réinstalle la version précédente si ses sources sont
-encore dans `/usr/src`, restaure la règle udev d'origine, retire l'utilisateur qui a
+encore dans `/usr/src`, restaure la règle udev d'origine, retire le chargement au démarrage, retire l'utilisateur qui a
 lancé `sudo` du groupe `msi-ec` (la déconnexion/reconnexion applique le retrait) et
 supprime ce groupe s'il n'a plus aucun membre. Relancer l'installateur est sans danger :
 aucune ligne en double, aucune sauvegarde écrasée.

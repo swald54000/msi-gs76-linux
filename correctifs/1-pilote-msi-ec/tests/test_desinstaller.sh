@@ -30,6 +30,8 @@ exit 0'
     . "$ici/../../../lib/commun.sh"
     sauvegarder /etc/udev/rules.d/99-msi-ec.rules
     echo "regle du correctif" >"$RACINE/etc/udev/rules.d/99-msi-ec.rules"
+    sauvegarder /etc/modules-load.d/msi-ec.conf
+    mkdir -p "$RACINE/etc/modules-load.d"; echo msi_ec >"$RACINE/etc/modules-load.d/msi-ec.conf"
     export MSI_EC_NOYAUX="7.2.14-1-omarchy"
 }
 
@@ -37,6 +39,7 @@ preparer ""
 bash "$corr/desinstaller.sh" >"$RACINE/sortie" 2>&1; code=$?
 verifie "désinstallation : code 0" test "$code" -eq 0
 verifie "règle d'origine restaurée" grep -q "regle d'origine" "$RACINE/etc/udev/rules.d/99-msi-ec.rules"
+verifie "chargement au démarrage retiré" test ! -e "$RACINE/etc/modules-load.d/msi-ec.conf"
 verifie "module du correctif retiré" grep -q 'dkms remove msi-ec/gs76.c8cbd48 --all' "$RACINE/journal"
 verifie "sources du correctif supprimées" test ! -d "$RACINE/usr/src/msi-ec-gs76.c8cbd48"
 verifie "version précédente réinstallée" grep -q 'dkms install msi-ec/r734.d7fbbd8 -k 7.2.14-1-omarchy' "$RACINE/journal"

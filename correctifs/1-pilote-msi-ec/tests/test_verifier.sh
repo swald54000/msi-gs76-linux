@@ -12,6 +12,8 @@ preparer() {
     echo Battery >"$RACINE/sys/class/power_supply/BAT0/type"
     echo 80 >"$RACINE/sys/class/power_supply/BAT0/charge_control_end_threshold"
     : >"$RACINE/sys/devices/platform/msi-ec/fan_mode"
+    mkdir -p "$RACINE/etc/modules-load.d" "$RACINE/usr/src/msi-ec-gs76.c8cbd48"
+    echo msi_ec >"$RACINE/etc/modules-load.d/msi-ec.conf"
     faux_cmd id 'echo 1000'
     faux_cmd stat 'echo "${GROUPE_FAUX:-msi-ec}"'
     faux_cmd modinfo 'echo "${VERSION_FAUX-gs76.c8cbd48}"'
@@ -36,10 +38,34 @@ verifie "version introuvable : toujours sain" test "$code" -eq 0
 verifie "version introuvable : signalée" grep -q '^OK .*version .*inconnue' "$RACINE/sortie"
 
 preparer
-rm -rf "$RACINE/sys/devices/platform/msi-ec"
+rm -rf "$RACINE/sys/devices/platform/msi-ec" "$RACINE/usr/src/msi-ec-gs76.c8cbd48" "$RACINE/etc/modules-load.d/msi-ec.conf"
 verifier; code=$?
 verifie "msi-ec absent : code 1" test "$code" -eq 1
 verifie "msi-ec absent : sortie ABSENT" grep -q '^ABSENT ' "$RACINE/sortie"
+
+# Correctif installé (sources DKMS présentes) mais pilote non chargé : un défaut, pas une absence.
+preparer
+rm -rf "$RACINE/sys/devices/platform/msi-ec" "$RACINE/etc/modules-load.d/msi-ec.conf"
+verifier; code=$?
+verifie "installé, non chargé, sans chargement au démarrage : code 2" test "$code" -eq 2
+verifie "installé, non chargé, sans chargement au démarrage : détail" grep -q '^DÉFAUT .*non chargé.*modules-load.d/msi-ec.conf absent' "$RACINE/sortie"
+preparer
+rm -rf "$RACINE/sys/devices/platform/msi-ec"
+verifier; code=$?
+verifie "installé, non chargé malgré modules-load.d : code 2" test "$code" -eq 2
+verifie "installé, non chargé malgré modules-load.d : détail" grep -q '^DÉFAUT .*non chargé' "$RACINE/sortie"
+
+# Pilote chargé à la main mais rien ne le recharge au démarrage : il disparaîtra au redémarrage.
+preparer
+rm "$RACINE/etc/modules-load.d/msi-ec.conf"
+verifier; code=$?
+verifie "chargé sans chargement au démarrage : code 2" test "$code" -eq 2
+verifie "chargé sans chargement au démarrage : détail" grep -q '^DÉFAUT .*prochain démarrage' "$RACINE/sortie"
+# Un autre fichier (paquet) qui charge msi_ec suffit.
+preparer
+rm "$RACINE/etc/modules-load.d/msi-ec.conf"; mkdir -p "$RACINE/usr/lib/modules-load.d"; echo msi-ec >"$RACINE/usr/lib/modules-load.d/autre.conf"
+verifier; code=$?
+verifie "chargement au démarrage fourni par un autre fichier : code 0" test "$code" -eq 0
 
 preparer
 rm "$RACINE/sys/devices/platform/msi-ec/fan_mode"

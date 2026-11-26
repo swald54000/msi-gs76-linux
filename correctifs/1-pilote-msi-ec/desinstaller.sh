@@ -8,6 +8,7 @@ ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RACINE="${RACINE:-}"
 GROUPE=msi-ec
 fichier_regle=/etc/udev/rules.d/99-msi-ec.rules
+fichier_chargement=/etc/modules-load.d/msi-ec.conf
 etat="$RACINE/var/lib/msi-gs76-linux"
 usrsrc="$RACINE/usr/src"
 
@@ -45,6 +46,11 @@ if a_une_sauvegarde "$fichier_regle"; then
     restaurer "$fichier_regle"
 else
     avertir "aucune sauvegarde de la règle udev : fichier laissé tel quel."
+fi
+
+# Chargement au démarrage : même principe.
+if a_une_sauvegarde "$fichier_chargement"; then
+    restaurer "$fichier_chargement"
 fi
 
 udevadm control --reload

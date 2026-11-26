@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-# Installe le pilote msi-ec d'origine, à un commit figé, via DKMS, avec la règle udev et le
-# groupe msi-ec.
+# Installe le pilote msi-ec d'origine, à un commit figé, via DKMS, avec son chargement au
+# démarrage, la règle udev et le groupe msi-ec.
 # Variables : MSI_EC_DEPOT, MSI_EC_REF, SEUIL_CHARGE (50 à 100, défaut 80), MSI_EC_NOYAUX.
 set -eEuo pipefail
 ici="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -43,6 +43,7 @@ version="gs76.${MSI_EC_REF:0:7}"
 usrsrc="$RACINE/usr/src"
 dest="$usrsrc/msi-ec-$version"
 fichier_regle=/etc/udev/rules.d/99-msi-ec.rules
+fichier_chargement=/etc/modules-load.d/msi-ec.conf
 etat="$RACINE/var/lib/msi-gs76-linux"
 
 temp="$(mktemp -d)"
@@ -62,6 +63,7 @@ if [ ! -e "$etat/pilote-precedent" ]; then
     { dkms status msi-ec 2>/dev/null | sed -n 's|^msi-ec/\([^,]*\),.*|\1|p' | grep -v '^gs76\.' | sort -u | head -n 1 || true; } >"$etat/pilote-precedent"
 fi
 sauvegarder "$fichier_regle"
+sauvegarder "$fichier_chargement"
 
 # À partir d'ici, toute erreur ramène au pilote précédent.
 retour() {
@@ -112,6 +114,12 @@ done
 # Groupe et utilisateur.
 getent group "$GROUPE" >/dev/null || groupadd "$GROUPE"
 usermod -aG "$GROUPE" "$utilisateur"
+
+# Chargement au démarrage : le pilote d'origine ne déclare aucun alias matériel, rien ne le charge
+# seul. Sans ce fichier il disparaît au redémarrage suivant, et le seuil de charge avec lui.
+mkdir -p "$RACINE$(dirname "$fichier_chargement")"
+printf '%s\n' "# Correctif 1 de msi-gs76-linux : le pilote msi-ec n'a pas d'alias matériel, il faut le charger ici." \
+    "msi_ec" >"$RACINE$fichier_chargement"
 
 # Règle udev puis rechargement.
 mkdir -p "$RACINE$(dirname "$fichier_regle")"
